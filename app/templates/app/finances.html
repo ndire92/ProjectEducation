@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+
+    <!-- Contenu principal -->
+    <div class="container mt-4">
+        <h2 class="text-primary text-center fw-bold mb-4">💰 Gestion des Finances de l'École</h2>
+
+        <!-- Messages de succès -->
+        {% if messages %}
+        <div class="alert alert-success shadow">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Barre de recherche -->
+        <form method="GET" class="mb-3 d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Rechercher par contribution (> valeur)..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+
+        <!-- Formulaire -->
+        <div class="card p-4 mb-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">
+                {% if finance %} Modifier les Finances {% else %} Ajouter des Finances {% endif %}
+            </h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success w-100 fw-bold">
+                    {% if finance %} Mettre à Jour {% else %} Enregistrer {% endif %}
+                </button>
+            </form>
+        </div>
+
+        <!-- Liste des Finances -->
+        <div class="card p-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">📋 Liste des Finances</h4>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Contributions Familles</th>
+                        <th>Autres Contributions</th>
+                        <th>Activités Génératrices</th>
+                        <th>Budget Cantine</th>
+                        <th>Salaires Enseignants</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for finance in finances %}
+                    <tr>
+                        <td>{{ finance.contributions_familles }}</td>
+                        <td>{{ finance.autres_contributions }}</td>
+                        <td>{{ finance.activites_generatrices_revenus }}</td>
+                        <td>{{ finance.cantine_scolaire }}</td>
+                        <td>{{ finance.salaires_personnel_enseignant }}</td>
+                        <td>
+                            <a href="{% url 'gestion_finances' finance.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form method="POST" action="{% url 'supprimer_finance' finance.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucune finance trouvée.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

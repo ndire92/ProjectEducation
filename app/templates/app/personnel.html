@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+<div class="container mt-4">
+    <h2 class="text-primary text-center fw-bold mb-4">👩‍🏫 Gestion du Personnel</h2>
+    <form method="GET" class="mb-3 d-flex">
+        <input type="text" name="q" class="form-control me-2" placeholder="Rechercher par nom..." value="{{ query }}">
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+
+    <div class="card p-4 shadow-lg mb-4">
+        <h4 class="fw-bold text-primary mb-3">{% if personnel %} Modifier le Personnel {% else %} Ajouter un Personnel {% endif %}</h4>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success w-100 fw-bold">Enregistrer</button>
+        </form>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Genre</th>
+                <th>Âge</th>
+                <th>Fonction</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in personnels %}
+            <tr>
+                <td>{{ person.nom }}</td>
+                <td>{{ person.genre }}</td>
+                <td>{{ person.age }}</td>
+                <td>{{ person.fonction }}</td>
+                <td>
+                    <a href="{% url 'gestion_personnel' person.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                    <form method="POST" action="{% url 'supprimer_personnel' person.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">Aucun personnel trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% endblock %}

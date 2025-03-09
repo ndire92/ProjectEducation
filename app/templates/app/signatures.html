@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+
+    <!-- Contenu principal -->
+    <div class="container mt-4">
+        <h2 class="text-primary text-center fw-bold mb-4">🖋️ Gestion des Signatures et Cachets</h2>
+
+        <!-- Messages de succès -->
+        {% if messages %}
+        <div class="alert alert-success shadow">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Barre de recherche -->
+        <form method="GET" class="mb-3 d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Rechercher par nom de signataire..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+
+        <!-- Formulaire -->
+        <div class="card p-4 mb-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">
+                {% if signature %} Modifier la Signature {% else %} Ajouter une Signature {% endif %}
+            </h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success w-100 fw-bold">
+                    {% if signature %} Mettre à Jour {% else %} Enregistrer {% endif %}
+                </button>
+            </form>
+        </div>
+
+        <!-- Liste des Signatures -->
+        <div class="card p-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">📋 Liste des Signatures et Cachets</h4>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Nom du Signataire</th>
+                        <th>Fonction</th>
+                        <th>Date de Signature</th>
+                        <th>Cachet Apposé</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for signature in signatures %}
+                    <tr>
+                        <td>{{ signature.nom_signataire }}</td>
+                        <td>{{ signature.fonction_signataire }}</td>
+                        <td>{{ signature.date_signature }}</td>
+                        <td>{{ signature.cachet_present|yesno:"Oui,Non" }}</td>
+                        <td>
+                            <a href="{% url 'gestion_signatures' signature.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form method="POST" action="{% url 'supprimer_signature' signature.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucune signature trouvée.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

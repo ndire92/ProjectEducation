@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+<div class="container mt-4">
+    <h2 class="text-primary text-center fw-bold mb-4">📊 Gestion des Statistiques Générales</h2>
+
+    <!-- Barre de recherche -->
+    <form method="GET" class="mb-3 d-flex">
+        <input type="text" name="q" class="form-control me-2" placeholder="Rechercher par année scolaire..." value="{{ query }}">
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+
+    <!-- Formulaire -->
+    <div class="card p-4 mb-4 shadow-lg">
+        <h4 class="text-primary fw-bold mb-3">
+            {% if statistique %} Modifier une Statistique {% else %} Ajouter une Statistique {% endif %}
+        </h4>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success w-100 fw-bold">Enregistrer</button>
+        </form>
+    </div>
+
+    <!-- Liste -->
+    <div class="card p-4 shadow-lg">
+        <h4 class="text-primary fw-bold mb-3">📋 Liste des Statistiques Générales</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Année Scolaire</th>
+                    <th>Total Inscrits</th>
+                    <th>Total Redoublants</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for statistique in statistiques %}
+                <tr>
+                    <td>{{ statistique.annee_scolaire }}</td>
+                    <td>{{ statistique.total_inscrits }}</td>
+                    <td>{{ statistique.total_redoublants }}</td>
+                    <td>
+                        <a href="{% url 'gestion_statistiques' statistique.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                        <form method="POST" action="{% url 'supprimer_statistique' statistique.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Aucune statistique trouvée.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+{% endblock %}

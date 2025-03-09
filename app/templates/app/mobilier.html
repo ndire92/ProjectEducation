@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+
+    <!-- Contenu principal -->
+    <div class="container mt-4">
+        <h2 class="text-center mb-4 text-primary fw-bold">🪑 Gestion du Mobilier et Équipements</h2>
+
+        <!-- Messages de succès -->
+        {% if messages %}
+        <div class="alert alert-success shadow">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Barre de recherche -->
+        <form method="GET" class="mb-3 d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Rechercher par ordinateurs (>= nombre)..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+
+        <!-- Formulaire -->
+        <div class="card p-4 shadow-lg mb-4">
+            <h4 class="fw-bold text-primary mb-3">
+                {% if mobilier %} Modifier le Mobilier/Équipement {% else %} Ajouter un Mobilier/Équipement {% endif %}
+            </h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success w-100 fw-bold">
+                    {% if mobilier %} Mettre à Jour {% else %} Enregistrer {% endif %}
+                </button>
+            </form>
+        </div>
+
+        <!-- Liste du mobilier -->
+        <div class="card p-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">📋 Liste du Mobilier et Équipements</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tables Maître</th>
+                        <th>Bureaux</th>
+                        <th>Chaises</th>
+                        <th>Tableaux Noirs</th>
+                        <th>Ordinateurs</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mobilier in mobiliers %}
+                    <tr>
+                        <td>{{ mobilier.tables_maitre }}</td>
+                        <td>{{ mobilier.bureaux_maitre }}</td>
+                        <td>{{ mobilier.chaises_maitre }}</td>
+                        <td>{{ mobilier.tableaux_noirs }}</td>
+                        <td>{{ mobilier.ordinateurs }}</td>
+                        <td>
+                            <a href="{% url 'gestion_mobilier' mobilier.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form method="POST" action="{% url 'supprimer_mobilier' mobilier.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun mobilier trouvé.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

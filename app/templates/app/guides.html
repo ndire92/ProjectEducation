@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+
+    <!-- Contenu principal -->
+    <div class="container mt-4">
+        <h2 class="text-primary fw-bold text-center mb-4">📚 Gestion des Guides et Manuels</h2>
+
+        <!-- Messages de succès -->
+        {% if messages %}
+        <div class="alert alert-success shadow">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Barre de recherche -->
+        <form method="GET" class="mb-3 d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Rechercher par niveau scolaire..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+
+        <!-- Formulaire -->
+        <div class="card p-4 mb-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">
+                {% if guide %} Modifier le Guide ou Manuel {% else %} Ajouter un Guide ou Manuel {% endif %}
+            </h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success w-100 fw-bold">
+                    {% if guide %} Mettre à Jour {% else %} Enregistrer {% endif %}
+                </button>
+            </form>
+        </div>
+
+        <!-- Liste des Guides et Manuels -->
+        <div class="card p-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">📋 Liste des Guides et Manuels</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Niveau</th>
+                        <th>Matière</th>
+                        <th>Langue</th>
+                        <th>Guides</th>
+                        <th>Manuels</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for guide in guides %}
+                    <tr>
+                        <td>{{ guide.niveau }}</td>
+                        <td>{{ guide.matiere }}</td>
+                        <td>{{ guide.langue }}</td>
+                        <td>{{ guide.guides }}</td>
+                        <td>{{ guide.manuels }}</td>
+                        <td>
+                            <a href="{% url 'gestion_guides' guide.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form method="POST" action="{% url 'supprimer_guide' guide.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun guide ou manuel trouvé.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

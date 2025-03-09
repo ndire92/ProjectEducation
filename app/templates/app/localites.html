@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+<div class="container mt-4">
+    <h2 class="text-center text-primary fw-bold mb-4">🌍 Gestion des Localités Rurales</h2>
+
+    <!-- Messages de succès -->
+    {% if messages %}
+    <div class="alert alert-success shadow">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Barre de recherche -->
+    <form method="GET" class="mb-3 d-flex">
+        <input type="text" name="q" class="form-control me-2" placeholder="Rechercher une localité..." value="{{ query }}">
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+
+    <!-- Formulaire -->
+    <div class="card p-4 shadow-lg mb-4">
+        <h4 class="fw-bold text-primary mb-3">
+            {% if localite %} Modifier la Localité {% else %} Ajouter une Localité {% endif %}
+        </h4>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success w-100 fw-bold">
+                {% if localite %} Mettre à Jour {% else %} Enregistrer {% endif %}
+            </button>
+        </form>
+    </div>
+
+    <!-- Liste des localités -->
+    <div class="card p-4 shadow-lg">
+        <h4 class="text-primary fw-bold mb-3">📋 Liste des Localités</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Type Accès</th>
+                    <th>Électricité</th>
+                    <th>Type d'Eau</th>
+                    <th>Type de Marché</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for localite in localites %}
+                <tr>
+                    <td>{{ localite.type_acces }}</td>
+                    <td>{{ localite.electricite_disponible|yesno:"Oui,Non" }}</td>
+                    <td>{{ localite.type_eau }}</td>
+                    <td>{{ localite.type_marche }}</td>
+                    <td>
+                        <a href="{% url 'gestion_localites' localite.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                        <form method="POST" action="{% url 'supprimer_localite' localite.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Aucune localité trouvée.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+{% endblock %}

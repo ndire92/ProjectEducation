@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+<div class="container mt-4">
+    <h2 class="text-primary fw-bold mb-4">📐 Gestion des Équipements Didactiques</h2>
+    <form method="GET" class="d-flex mb-3">
+        <input type="text" name="q" class="form-control me-2" placeholder="Recherche par règles (>= nombre)..." value="{{ query }}">
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+
+    <div class="card p-4 mb-4">
+        <h4 class="text-primary fw-bold">
+            {% if equipement %} Modifier l'Équipement {% else %} Ajouter un Équipement {% endif %}
+        </h4>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success w-100 fw-bold">Enregistrer</button>
+        </form>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Règles</th>
+                <th>Rapporteurs</th>
+                <th>Cartes</th>
+                <th>Bon État</th>
+                <th>Mauvais État</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipement in equipements %}
+            <tr>
+                <td>{{ equipement.regles }}</td>
+                <td>{{ equipement.rapporteurs }}</td>
+                <td>{{ equipement.cartes }}</td>
+                <td>{{ equipement.bon_etat }}</td>
+                <td>{{ equipement.mauvais_etat }}</td>
+                <td>
+                    <a href="{% url 'gestion_equipements' equipement.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                    <form method="POST" action="{% url 'supprimer_equipement' equipement.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center">Aucun équipement trouvé.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}

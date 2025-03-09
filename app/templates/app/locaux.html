@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex">
+    <!-- Sidebar -->
+    {% include 'include/sidebar.html' %}
+
+    <!-- Contenu principal -->
+    <div class="container mt-4">
+        <h2 class="text-center mb-4 text-primary fw-bold">🏢 Gestion des Locaux</h2>
+
+        <!-- Messages de succès -->
+        {% if messages %}
+        <div class="alert alert-success shadow">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Barre de recherche -->
+        <form method="GET" class="mb-3 d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Rechercher un local..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+
+        <!-- Formulaire -->
+        <div class="card p-4 shadow-lg mb-4">
+            <h4 class="fw-bold text-primary mb-3">
+                {% if local %} Modifier le Local {% else %} Ajouter un Local {% endif %}
+            </h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success w-100 fw-bold">
+                    {% if local %} Mettre à Jour {% else %} Enregistrer {% endif %}
+                </button>
+            </form>
+        </div>
+
+        <!-- Liste des Locaux -->
+        <div class="card p-4 shadow-lg">
+            <h4 class="text-primary fw-bold mb-3">📋 Liste des Locaux</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Affectation</th>
+                        <th>Année</th>
+                        <th>Surface</th>
+                        <th>État des Murs</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for local in locaux %}
+                    <tr>
+                        <td>{{ local.numero }}</td>
+                        <td>{{ local.affectation }}</td>
+                        <td>{{ local.annee_mise_en_service }}</td>
+                        <td>{{ local.surface }} m²</td>
+                        <td>{{ local.etat_murs }}</td>
+                        <td>
+                            <a href="{% url 'gestion_locaux' local.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                            <form method="POST" action="{% url 'supprimer_local' local.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun local trouvé.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
