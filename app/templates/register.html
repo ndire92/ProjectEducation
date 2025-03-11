@@ -1,0 +1,133 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 900px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .left {
+            flex: 1;
+            background: url('school-image.jpg') no-repeat center center;
+            background-size: cover;
+            min-height: 400px;
+        }
+
+        .right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            background-color: #f4f4f4;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h1 {
+            margin-bottom: 20px;
+        }
+
+        .form-container input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .form-container button:hover {
+            background-color: #218838;
+        }
+        .left {
+            flex: 1;
+            min-height: 360px;
+            min-width: 350px;
+            max-width: 450px;
+            background: url('{% static "images/m.png" %}') no-repeat center center;
+            background-size: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .left {
+                height: 200px;
+            }
+
+            .right {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+
+        </div>
+        <div class="right">
+            <div class="form-container">
+                <h1>Inscription</h1>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Nom d'utilisateur" required>
+                    <input type="password" name="password" placeholder="Mot de passe" required>
+                    <input type="password" name="confirm_password" placeholder="Confirmez le mot de passe" required>
+                    <button type="submit">S'inscrire</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

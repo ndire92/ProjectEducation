@@ -31,11 +31,27 @@
             </h4>
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-success w-100 fw-bold">
-                    {% if signature %} Mettre à Jour {% else %} Enregistrer {% endif %}
-                </button>
-            </form>
+                <div class="form-group">
+                    {{ form.observation.label_tag }}
+                    {{ form.observation }}
+                </div>
+                <div class="form-group">
+                    {{ form.nom_signataire.label_tag }}
+                    {{ form.nom_signataire }}
+                </div>
+                <div class="form-group">
+                    {{ form.fonction_signataire.label_tag }}
+                    {{ form.fonction_signataire }}
+                </div>
+                <div class="form-group">
+                    {{ form.date_signature.label_tag }}
+                    {{ form.date_signature }}
+                </div>
+                <div class="form-check">
+                    {{ form.cachet_present }}
+                    {{ form.cachet_present.label_tag }}
+                </div>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
         </div>
 
         <!-- Liste des Signatures -->

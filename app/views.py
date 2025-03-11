@@ -1,4 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import logout
+from django.shortcuts import render, redirect
+from django.db.models import Count  # Ajoutez cet import
+
+
+
+from django.contrib.auth.models import User
+from django.contrib import messages
 from .models import Ecole, Ecole_identification
 from .forms import EcoleForm, EcoleIdentificationForm
 from .models import LocaliteRurale
@@ -33,6 +41,50 @@ from .forms import ObservationEventuelleForm
 from .models import FinancesEcole
 from .forms import FinancesEcoleForm
 from django.contrib import messages
+
+
+
+
+
+from django.shortcuts import render
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponse
+
+from app import models
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('gestion_ecole')
+        else:
+            return HttpResponse("Échec de la connexion.")
+    return render(request, 'login.html')
+
+
+def register_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+
+        if password == confirm_password:
+            if User.objects.filter(username=username).exists():
+                messages.error(request, "Le nom d'utilisateur existe déjà.")
+            else:
+                User.objects.create_user(username=username, password=password)
+                messages.success(request, "Inscription réussie ! Connectez-vous maintenant.")
+                return redirect('login')
+        else:
+            messages.error(request, "Les mots de passe ne correspondent pas.")
+    return render(request, 'register.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 def gestion_ecole(request, pk=None):
     ecole = get_object_or_404(Ecole, pk=pk) if pk else None
@@ -672,3 +724,20 @@ def supprimer_signature(request, pk):
         return redirect('gestion_signatures')
 
     return render(request, 'app/signature_delete.html', {'signature': signature})
+
+
+def dashboard(request):
+    # Récupérer des données pour afficher sur le tableau de bord
+    total_ecoles = Ecole.objects.count()
+    total_locaux = Local.objects.count()
+    total_mobilier = MobilierEtEquipements.objects.count()
+
+    # Calculer d'autres statistiques si nécessaire
+    # Exemple: Nombre d'écoles par statut
+    ecoles_par_statut = Ecole.objects.values('ouverte').annotate(count=Count('id'))
+    return render(request, 'app/dashboard.html', {
+        'total_ecoles': total_ecoles,
+        'total_locaux': total_locaux,
+        'total_mobilier': total_mobilier,
+        'ecoles_par_statut': ecoles_par_statut,
+    })

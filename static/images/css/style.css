@@ -1,0 +1,17 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+.sidebar {
+    position: fixed;
+    width: 300px;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+}
+.container {
+    margin-left: 320px; /* Espace pour la sidebar */
+}
+.table-striped tbody tr:hover {
+    background-color: #f1f1f1;
+}

@@ -2,6 +2,23 @@ from django.db import models
 
 # Create your models here.
 #identification et de localisation d'une éco
+from django.contrib.auth.models import AbstractUser
+
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
+
+class CustomUser(AbstractUser):
+    groups = models.ManyToManyField(
+        Group,
+        related_name='customuser_groups',  # Définir un related_name unique
+        blank=True
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name='customuser_permissions',  # Définir un related_name unique
+        blank=True
+    )
+
 
 class Ecole_identification(models.Model):
     ancien_code = models.CharField(max_length=50, null=True, blank=True)  # Ancien code de l'école
@@ -13,21 +30,29 @@ class Ecole_identification(models.Model):
         ('public', 'Public'),
         ('prive', 'Privé')
     ], null=True, blank=True)  # Statut de l'école
+    
+
+    Localisation_administrative = models.CharField(max_length=20, choices=[
+    ('wilaya', 'Wilaya'),
+    ('moughataa', 'Moughataa'),  # Added comma here
+    ('commune', 'Commune'),
+    ('localite', 'Localite')
+], null=True, blank=True)  # Zone de localisation (Rurale/Urbaine)
+
+
+    
+
+    Localisation_scolaire = models.CharField(max_length=20, choices=[
+        ('dren', 'dren'),
+        ('iden', 'iden')
+    ], null=True, blank=True)  
+    
     zone = models.CharField(max_length=20, choices=[
         ('rurale', 'Rurale'),
         ('urbaine', 'Urbaine')
     ], null=True, blank=True)  # Zone de localisation (Rurale/Urbaine)
-
-    # Localisation administrative
-    wilaya = models.CharField(max_length=200, null=True, blank=True)
-    moughataa = models.CharField(max_length=200, null=True, blank=True)
-    commune = models.CharField(max_length=200, null=True, blank=True)
-    localite = models.CharField(max_length=200, null=True, blank=True)
-
-    # Localisation scolaire
-    dren = models.CharField(max_length=200, null=True, blank=True)  # Direction Régionale de l'Éducation
-    iden = models.CharField(max_length=200, null=True, blank=True)  # Inspection Départementale de l'Éducation
-
+    
+    
     def __str__(self):
         return self.nom
 
@@ -96,8 +121,10 @@ class Ecole(models.Model):
     # Ressources
     eau_disponible = models.BooleanField()  # École alimentée en eau
     type_eau = models.CharField(max_length=50, null=True, blank=True)  # Robinet, puits, etc.
+   
     nb_postes_eau = models.IntegerField(null=True, blank=True)  # Nombre de postes d'eau
     electricite_disponible = models.BooleanField()  # Électricité disponible
+    
     nb_classes_electrifiees = models.IntegerField(null=True, blank=True)
 
     # Infrastructures

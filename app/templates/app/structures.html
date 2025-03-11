@@ -64,3 +64,22 @@
 </div>
 </div>
 {% endblock %}
+<script>
+    document.getElementById('id_nombre_eleves_garcons').addEventListener('input', updateTotalEleves);
+document.getElementById('id_nombre_eleves_filles').addEventListener('input', updateTotalEleves);
+document.getElementById('id_redoublants_garcons').addEventListener('input', updateTotalRedoublants);
+document.getElementById('id_redoublants_filles').addEventListener('input', updateTotalRedoublants);
+
+function updateTotalEleves() {
+    const garcons = parseInt(document.getElementById('id_nombre_eleves_garcons').value) || 0;
+    const filles = parseInt(document.getElementById('id_nombre_eleves_filles').value) || 0;
+    document.getElementById('id_total_eleves').value = garcons + filles;
+}
+
+function updateTotalRedoublants() {
+    const garcons = parseInt(document.getElementById('id_redoublants_garcons').value) || 0;
+    const filles = parseInt(document.getElementById('id_redoublants_filles').value) || 0;
+    document.getElementById('id_total_redoublants').value = garcons + filles;
+}
+
+</script>

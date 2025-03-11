@@ -1,0 +1,168 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <style>
+        /* Style général */
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+            background-color: #f0f2f5;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* En-tête */
+        header {
+            text-align: center;
+            background-color: #004080;
+            color: white;
+            padding: 15px;
+            width: 90%;
+            max-width: 900px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .header-subtitle {
+            margin: 5px 0;
+            font-size: 1em;
+        }
+
+        /* Contenu principal */
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            width: 90%;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        /* Section gauche (formulaire) */
+        .left {
+            flex: 1;
+            min-width: 350px;
+            max-width: 450px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logo img {
+            max-width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .form-container h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-container input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Section droite (image) */
+        .right {
+            flex: 1;
+            min-height: 360px;
+            min-width: 350px;
+            max-width: 450px;
+            background: url('{% static "images/m.png" %}') no-repeat center center;
+            background-size: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+
+            .left, .right {
+                max-width: 100%;
+            }
+
+            .right {
+                min-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête -->
+    <header>
+        <h1 class="header-title">République Islamique de Mauritanie</h1>
+        <p class="header-subtitle">Honneur - Fraternité - Justice</p>
+        <p class="header-subtitle">Ministère de l'Éducation Nationale</p>
+        <p class="header-subtitle">Direction des Stratégies de la Programmation et de la Coopération</p>
+        <p class="header-subtitle">Recensement Scolaire Annuel</p>
+        <p class="header-subtitle">Questionnaire Fondamental</p>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <!-- Section gauche avec le formulaire -->
+        <div class="left">
+            <div class="form-container">
+                <div class="logo">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo de l'école">
+                </div>
+                <h1>Connexion</h1>
+                <form method="POST">
+                    {% csrf_token %}
+                    <label for="username">Nom d'utilisateur</label>
+                    <input id="username" type="text" name="username" placeholder="Nom d'utilisateur" required>
+                    <label for="password">Mot de passe</label>
+                    <input id="password" type="password" name="password" placeholder="Mot de passe" required>
+                    <button type="submit">Se connecter</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section droite avec l'image -->
+        <div class="right"></div>
+    </main>
+</body>
+</html>

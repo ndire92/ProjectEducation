@@ -64,13 +64,11 @@
                             <th>Ancien Nom</th>
                             <th>Date de Création</th>
                             <th>Statut</th>
+                           
+                            <th>Localisation_administrative</th>
+                           
+                            <th>Localisation_scolaire</th>
                             <th>Zone</th>
-                            <th>Wilaya</th>
-                            <th>Moughataa</th>
-                            <th>Commune</th>
-                            <th>Localité</th>
-                            <th>DREN</th>
-                            <th>IDEN</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -84,12 +82,11 @@
                             <td>{{ identi.date_creation }}</td>
                             <td>{{ identi.statut }}</td>
                             <td>{{ identi.zone }}</td>
-                            <td>{{ identi.wilaya }}</td>
-                            <td>{{ identi.moughataa }}</td>
-                            <td>{{ identi.commune }}</td>
-                            <td>{{ identi.localite }}</td>
-                            <td>{{ identi.dren }}</td>
-                            <td>{{ identi.iden }}</td>
+                            <td>{{ identi.Localisation_administrative }}</td>
+                            <td>{{ identi.Localisation_scolaire }}</td>
+                            <td>{{ identi.zone }}</td>
+                            
+                            
                             <td>
                                 <a href="{% url 'identification' identi.id %}" class="btn btn-warning btn-sm fw-bold">✏ Modifier</a>
                                 <button class="btn btn-danger btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#deleteModal{{ identi.id }}">❌ Supprimer</button>

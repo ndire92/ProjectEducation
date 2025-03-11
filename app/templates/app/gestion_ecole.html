@@ -2,10 +2,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex">
-
-   <!-- Sidebar -->
-   {% include 'include/sidebar.html' %}
 
     <!-- Contenu principal -->
     <div class="container mt-4">
@@ -29,7 +25,8 @@
         <!-- Formulaire -->
   <!-- Formulaire avec affichage en colonnes -->
 <!-- Formulaire avec affichage en colonnes et champs stylisés -->
-<div class="card p-4 mb-4 shadow-lg border-0 rounded-4">
+<div class="card p-4 mb-4">
+
     <h4 class="text-primary fw-bold">
         {% if ecole %}✏ Modifier l'École{% else %}🏫 Ajouter une École{% endif %}
     </h4>
@@ -57,7 +54,7 @@
 
 
         <!-- Liste des Écoles -->
-        <div class="card p-4 shadow-lg border-0 rounded-4">
+     <div class="card p-4 shadow-lg mb-4">
             <h4 class="text-primary fw-bold mb-3">📋 Liste des Écoles</h4>
             <div class="table-responsive">
                 <table class="table table-striped table-hover shadow-sm">
@@ -111,11 +108,11 @@
                         <td>{{ ecole.hommes_ape }}</td>
                         <td>{{ ecole.comite_gestion_existe|yesno:"Oui,Non" }}</td>
                         <td>{{ ecole.distance_centre_sante }}</td>
-                        
-                      
+
+
                         <td>
                             <a href="{% url 'gestion_ecole' ecole.id %}" class="btn btn-warning btn-sm fw-bold">✏ Modifier</a>
-                            
+
                             <!-- Bouton Supprimer -->
                             <button class="btn btn-danger btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#deleteModal{{ ecole.id }}">
                                 ❌ Supprimer
@@ -155,20 +152,4 @@
         </div>
     </div>
 
-</div>
 {% endblock %}
-<style>
-    input, select, textarea {
-        border-radius: 8px !important;
-        border: 1px solid #ccc !important;
-        padding: 10px !important;
-        font-size: 1rem !important;
-        transition: 0.3s ease-in-out;
-    }
-    
-    input:focus, select:focus, textarea:focus {
-        border-color: #28a745 !important;
-        box-shadow: 0 0 8px rgba(40, 167, 69, 0.5) !important;
-    }
-    
-</style>

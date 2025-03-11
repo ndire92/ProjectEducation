@@ -8,8 +8,12 @@ from .views import (
     gestion_aires, supprimer_aire
 )
 from . import views  # Ajout pour gérer les statistiques et la mobilité
+from .views import register_view, login_view, logout_view
 
 urlpatterns = [
+    path('register/', register_view, name='register'),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
     # Gestion des écoles
     path('ecoles/', gestion_ecole, name='gestion_ecole'),
     path('ecoles/<int:pk>/', gestion_ecole, name='gestion_ecole'),
@@ -96,7 +100,7 @@ urlpatterns = [
     path('signatures/supprimer/<int:pk>/', views.supprimer_signature, name='supprimer_signature'),
 
 
-
+    path('dashboard/', views.dashboard, name='dashboard'),
 
 
 ]

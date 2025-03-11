@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <!-- Section des cartes -->
+    <div class="row">
+        {% for ecole in ecoles_par_statut %}
+        <div class="col-lg-4 col-md-6 col-sm-12"> <!-- Adapté pour tous les écrans -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">Statut : {{ ecole.ouverte }}</h5>
+                    <p class="card-text">Nombre d'écoles : {{ ecole.count }}</p>
+                    <a href="#" class="btn btn-outline-primary btn-sm">Voir détails</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Tableau des écoles -->
+    <div class="container mt-5">
+        <h3 class="text-center text-uppercase text-success">Tableau des Écoles</h3>
+        <table class="table table-hover table-bordered">
+            <thead class="bg-success text-white">
+                <tr>
+                    <th>Statut</th>
+                    <th>Nombre d'écoles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ecole in ecoles_par_statut %}
+                <tr>
+                    <td>{{ ecole.ouverte }}</td>
+                    <td>{{ ecole.count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Section graphique avec Chart.js -->
+<canvas id="statutChart" width="400" height="200" class="mt-5"></canvas>
+
+<script>
+    // Graphique interactif
+    var ctx = document.getElementById('statutChart').getContext('2d');
+    var statutChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [{% for statut in ecoles_par_statut %}'{{ statut.ouverte }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Nombre d\'Écoles',
+                data: [{% for statut in ecoles_par_statut %}{{ statut.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(255, 206, 86, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    h3.text-center {
+        margin-top: 20px;
+        font-family: 'Arial', sans-serif;
+    }
+    table {
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
