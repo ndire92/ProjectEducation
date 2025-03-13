@@ -16,8 +16,8 @@ from .models import Ecole
 from .forms import EcoleForm
 from .models import Local
 from .forms import LocalForm
-from .models import MobilierEtEquipements
-from .forms import MobilierEtEquipementsForm
+from .models import MobilierCollectif, MobilierEleve
+from .forms import MobilierCollectifForm, MobilierEleveForm
 from .models import EquipementDidactique
 from .forms import EquipementDidactiqueForm
 from .models import GuideEtManuel
@@ -203,31 +203,37 @@ def supprimer_localite(request, pk):
 
 # Vue pour gérer les mobiliers et équipements
 def gestion_mobilier(request, pk=None):
-    mobilier = get_object_or_404(MobilierEtEquipements, pk=pk) if pk else None
+    # Formulaires
 
-    # Filtrage par recherche
-    query = request.GET.get('q', '')
-    if query:
-        mobiliers = MobilierEtEquipements.objects.filter(ordinateurs__gte=int(query))  # Exemple de recherche dynamique
-    else:
-        mobiliers = MobilierEtEquipements.objects.all()
+    mobilier_collectif_form = MobilierCollectifForm(request.POST or None)
+    mobilier_eleve_form = MobilierEleveForm(request.POST or None)
 
-    if request.method == "POST":
-        form = MobilierEtEquipementsForm(request.POST, instance=mobilier)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Mobilier et équipements enregistrés avec succès !")
+    # Traitement des formulaires
+    if request.method == 'POST':
+        if mobilier_collectif_form.is_valid():
+            mobilier_collectif_form.save()
+            return redirect('gestion_mobilier')  # Recharge la page pour afficher les changements
+        elif mobilier_eleve_form.is_valid():
+            mobilier_eleve_form.save()
             return redirect('gestion_mobilier')
-    else:
-        form = MobilierEtEquipementsForm(instance=mobilier)
 
-    return render(request, 'app/mobilier.html', {
-        'form': form,
-        'mobiliers': mobiliers,
-        'mobilier': mobilier,
-        'query': query
-    })
+    # Récupérer les données pour les tableaux
+  
+    mobiliers_collectifs = MobilierCollectif.objects.all()
+    mobiliers_eleves = MobilierEleve.objects.all()
 
+    # Contexte pour le template
+    context = {
+     
+        'mobilier_collectif_form': mobilier_collectif_form,
+        'mobilier_eleve_form': mobilier_eleve_form,
+    
+        'mobiliers_collectifs': mobiliers_collectifs,
+        'mobiliers_eleves': mobiliers_eleves,
+    }
+
+    return render(request, 'app/mobilier.html', context)
+  
 # Vue pour supprimer un mobilier
 def supprimer_mobilier(request, pk):
     mobilier = get_object_or_404(MobilierEtEquipements, pk=pk)

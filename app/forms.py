@@ -1,11 +1,10 @@
 from django import forms
-from .models import AireRecrutement, DivisionPedagogique, Ecole, Ecole_identification, EquipementDidactique, FinancesEcole, GuideEtManuel, Local, LocaliteRurale,MobilierEtEquipements, MobiliteEleves, NouveauxInscrits, ObservationEventuelle, Personnel, SignatureEtCachet, StatistiqueGenerale, StructurePedagogique
+from .models import AireRecrutement, DivisionPedagogique, Ecole, Ecole_identification, EquipementDidactique, FinancesEcole, GuideEtManuel, Local, LocaliteRurale, MobilierCollectif, MobilierEleve,MobiliteEleves, NouveauxInscrits, ObservationEventuelle, Personnel, SignatureEtCachet, StatistiqueGenerale, StructurePedagogique
 
 from django import forms
 from .models import Ecole
 from django.core.exceptions import ValidationError
 from .models import ACTIVITES_CHOICES,LocaliteRurale,Activite_APE
-
 class EcoleForm(forms.ModelForm):
     class Meta:
         model = Ecole
@@ -22,50 +21,98 @@ class EcoleForm(forms.ModelForm):
             'distance_centre_sante', 'apport_en_vitamine_A', 'boite_pharmacie_disponible',
             'visite_médicale_année_dernière', 'campagne_de_déparasitage',
             'campagne_de_sensibilisation_au_VIH', 'campagne_de_sensibilisation_au_palu', 'association_eleve'
-        ]
+        ] 
+         
         widgets = {
-            'nom': forms.TextInput(attrs={'class': 'form-control'}),
-            'info_ecole': forms.Select(attrs={'class': 'form-control'}),
-            'accessible_toute_annee': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'eau_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'type_eau': forms.Select(attrs={'class': 'form-control'}),
-            'nb_postes_eau': forms.NumberInput(attrs={'class': 'form-control'}),
-            'electricite_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'nb_classes_electrifiees': forms.NumberInput(attrs={'class': 'form-control'}),
-            'cantine_fonctionnelle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'nb_rationnaires': forms.NumberInput(attrs={'class': 'form-control'}),
-            'nb_de_fille_beneficiaires': forms.NumberInput(attrs={'class': 'form-control'}),
-            'source_financement': forms.Select(attrs={'class': 'form-control'}),
-            'laves_mains_disponibles': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'nb_laves_mains': forms.NumberInput(attrs={'class': 'form-control'}),
-            'domaine_cloture': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'superficie_cloture': forms.NumberInput(attrs={'class': 'form-control'}),
-            'type_cloture': forms.Select(attrs={'class': 'form-control'}),
-            'espace_recreation_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'superficie_recreation': forms.NumberInput(attrs={'class': 'form-control'}),
-            'jardin_scolaire': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'utilisation_de_la_produit': forms.Select(attrs={'class': 'form-control'}),
-            'nb_total_latrines': forms.NumberInput(attrs={'class': 'form-control'}),
-            'nb_latrines_filles': forms.NumberInput(attrs={'class': 'form-control'}),
-            'nb_latrines_garcons': forms.NumberInput(attrs={'class': 'form-control'}),
-            'nb_latrines_mixt': forms.NumberInput(attrs={'class': 'form-control'}),
-            'ape_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'femmes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
-            'hommes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
-            'activites_ape': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'presidence_ape': forms.Select(attrs={'class': 'form-control'}),
-            'comite_gestion_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'femmes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'hommes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'presidence_comite': forms.Select(attrs={'class': 'form-control'}),
-            'distance_centre_sante': forms.NumberInput(attrs={'class': 'form-control'}),
-            'apport_en_vitamine_A': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'boite_pharmacie_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'visite_médicale_année_dernière': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'campagne_de_déparasitage': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'campagne_de_sensibilisation_au_VIH': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'campagne_de_sensibilisation_au_palu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'association_eleve': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'école'}),
+    'info_ecole': forms.Select(attrs={'class': 'form-control'}),
+    'accessible_toute_annee': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'eau_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'type_eau': forms.Select(attrs={'class': 'form-control'}),
+    'nb_postes_eau': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 5'}),
+    'electricite_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'nb_classes_electrifiees': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 10'}),
+    'cantine_fonctionnelle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'nb_rationnaires': forms.NumberInput(attrs={'class': 'form-control'}),
+    'nb_de_fille_beneficiaires': forms.NumberInput(attrs={'class': 'form-control'}),
+    'source_financement': forms.Select(attrs={'class': 'form-control'}),
+    'laves_mains_disponibles': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'nb_laves_mains': forms.NumberInput(attrs={'class': 'form-control'}),
+    'domaine_cloture': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'superficie_cloture': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 100.50'}),
+    'type_cloture': forms.Select(attrs={'class': 'form-control'}),
+    'espace_recreation_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'superficie_recreation': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 50.00'}),
+    'jardin_scolaire': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'utilisation_de_la_produit': forms.Select(attrs={'class': 'form-control'}),
+    'nb_total_latrines': forms.NumberInput(attrs={'class': 'form-control'}),
+    'nb_latrines_filles': forms.NumberInput(attrs={'class': 'form-control'}),
+    'nb_latrines_garcons': forms.NumberInput(attrs={'class': 'form-control'}),
+    'nb_latrines_mixt': forms.NumberInput(attrs={'class': 'form-control'}),
+    'ape_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'femmes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
+    'hommes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
+    'activites_ape': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+    'presidence_ape': forms.Select(attrs={'class': 'form-control'}),
+    'comite_gestion_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'femmes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
+    'hommes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
+    'presidence_comite': forms.Select(attrs={'class': 'form-control'}),
+    'distance_centre_sante': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 2'}),
+    'apport_en_vitamine_A': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'boite_pharmacie_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'visite_médicale_année_dernière': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'campagne_de_déparasitage': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'campagne_de_sensibilisation_au_VIH': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'campagne_de_sensibilisation_au_palu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    'association_eleve': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+}
+            
+    
+
+        labels = {
+            'nom': "Nom de l'école",
+            'info_ecole': "Statut de l'école",
+            'accessible_toute_annee': "Accessible toute l'année",
+            'eau_disponible': "École alimentée en eau",
+            'type_eau': "Type d'alimentation en eau",
+            'nb_postes_eau': "Nombre de postes d'eau",
+            'electricite_disponible': "Électricité disponible",
+            'nb_classes_electrifiees': "Nombre de classes électrifiées",
+            'cantine_fonctionnelle': "Cantine fonctionnelle",
+            'nb_rationnaires': "Nombre de rationnaires",
+            'nb_de_fille_beneficiaires': "Nombre de filles bénéficiaires",
+            'source_financement': "Source de financement",
+            'laves_mains_disponibles': "Laves-mains disponibles",
+            'nb_laves_mains': "Nombre de laves-mains",
+            'domaine_cloture': "Domaine scolaire clôturé",
+            'superficie_cloture': "Superficie clôturée (m²)",
+            'type_cloture': "Type de clôture",
+            'espace_recreation_disponible': "Espace de récréation disponible",
+            'superficie_recreation': "Superficie de récréation (m²)",
+            'jardin_scolaire': "Jardin scolaire",
+            'utilisation_de_la_produit': "Utilisation de la production",
+            'nb_total_latrines': "Nombre total de latrines",
+            'nb_latrines_filles': "Nombre de latrines pour filles",
+            'nb_latrines_garcons': "Nombre de latrines pour garçons",
+            'nb_latrines_mixt': "Nombre de latrines mixtes",
+            'ape_existe': "L'APE (Association des Parents d'Élèves) existe",
+            'femmes_ape': "Nombre de femmes dans l'APE",
+            'hommes_ape': "Nombre d'hommes dans l'APE",
+            'activites_ape': "Activités de l'APE",
+            'presidence_ape': "Présidence de l'APE",
+            'comite_gestion_existe': "Comité de gestion existe",
+            'femmes_comite': "Nombre de femmes dans le comité de gestion",
+            'hommes_comite': "Nombre d'hommes dans le comité de gestion",
+            'presidence_comite': "Présidence du comité de gestion",
+            'distance_centre_sante': "Distance au centre de santé (km)",
+            'apport_en_vitamine_A': "Apport en vitamine A",
+            'boite_pharmacie_disponible': "Boîte pharmacie disponible",
+            'visite_médicale_année_dernière': "Visite médicale l'année dernière",
+            'campagne_de_déparasitage': "Campagne de déparasitage",
+            'campagne_de_sensibilisation_au_VIH': "Sensibilisation au VIH",
+            'campagne_de_sensibilisation_au_palu': "Sensibilisation au paludisme",
+            'association_eleve': "Association d'élèves existe",
         }
 
     def clean_activites_ape(self):
@@ -93,12 +140,12 @@ class EcoleIdentificationForm(forms.ModelForm):
         model = Ecole_identification
         fields = [
             'ancien_code', 'nouveau_code', 'nom', 'ancien_nom',
-            'date_creation', 'statut', 'zone', 'Localisation_administrative', 
-            'Localisation_scolaire'
+            'date_creation', 'statut','Localisation_administrative', 
+            'Localisation_scolaire','zone'
         ]
         widgets = {
-            'ancien_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Entrez l\'ancien code'}),
-            'nouveau_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Entrez le nouveau code'}),
+            'ancien_code': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Entrez l\'ancien code'}),
+            'nouveau_code': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Entrez le nouveau code'}),
             'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'école'}),
             'ancien_nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ancien nom de l\'école'}),
             'date_creation': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -208,30 +255,32 @@ class LocalForm(forms.ModelForm):
     class Meta:
         model = Local
         fields = [
-            'numero', 'affectation', 'annee_mise_en_service', 
+            'numero', 'affectation_du_local', 'dont', 'annee_mise_en_service', 
             'surface', 'nature_murs', 'etat_murs', 'nature_toit', 
             'etat_toit', 'nature_sol', 'etat_sol', 'etat_portes', 
             'etat_fenetres', 'source_financement', 'observations'
         ]
         widgets = {
             'numero': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Numéro du local'}),
-            'affectation': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : Salle de classe, magasin'}),
+            'affectation_du_local': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'dont': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
             'annee_mise_en_service': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex : 1995'}),
             'surface': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Surface en m²'}),
-            'nature_murs': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : En dur, semi-dur'}),
-            'etat_murs': forms.Select(attrs={'class': 'form-select'}),
-            'nature_toit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : Tôle, chaume'}),
-            'etat_toit': forms.Select(attrs={'class': 'form-select'}),
-            'nature_sol': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : Ciment, terre'}),
-            'etat_sol': forms.Select(attrs={'class': 'form-select'}),
-            'etat_portes': forms.Select(attrs={'class': 'form-select'}),
-            'etat_fenetres': forms.Select(attrs={'class': 'form-select'}),
-            'source_financement': forms.Select(attrs={'class': 'form-select'}),
+            'nature_murs': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'etat_murs': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'nature_toit': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'etat_toit': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'nature_sol': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'etat_sol': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'etat_portes': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'etat_fenetres': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'source_financement': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
             'observations': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observations supplémentaires'}),
         }
         labels = {
             'numero': 'Numéro',
-            'affectation': 'Affectation',
+            'affectation_du_local': 'Affectation',
+            'dont': 'Dont',
             'annee_mise_en_service': 'Année de mise en service',
             'surface': 'Surface (m²)',
             'nature_murs': 'Nature des murs',
@@ -245,57 +294,29 @@ class LocalForm(forms.ModelForm):
             'source_financement': 'Source de financement',
             'observations': 'Observations',
         }
-    
 
 
-class MobilierEtEquipementsForm(forms.ModelForm):
+# Formulaire pour Mobilier Collectif
+class MobilierCollectifForm(forms.ModelForm):
     class Meta:
-        model = MobilierEtEquipements
-        fields = [
-            'tables_maitre', 'bureaux_maitre', 'chaises_maitre', 
-            'tableaux_noirs', 'tableaux_chevalets', 'armoires_bibliotheques', 
-            'machines_a_ecrire', 'projecteurs_diapos', 'ordinateurs', 
-            'calculatrices', 'bon_etat', 'mauvais_etat', 
-            'tables_bancs_1_place', 'tables_bancs_2_places', 
-            'tables_bancs_4_places', 'besoins_places_assises'
-        ]
+        model = MobilierCollectif
+        fields = ['nom', 'etat', 'nombre']
         widgets = {
-            'tables_maitre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tables pour les maîtres'}),
-            'bureaux_maitre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de bureaux'}),
-            'chaises_maitre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de chaises'}),
-            'tableaux_noirs': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tableaux noirs'}),
-            'tableaux_chevalets': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tableaux chevalets'}),
-            'armoires_bibliotheques': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre d\'armoires/bibliothèques'}),
-            'machines_a_ecrire': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de machines à écrire'}),
-            'projecteurs_diapos': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de projecteurs'}),
-            'ordinateurs': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre d\'ordinateurs'}),
-            'calculatrices': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de calculatrices'}),
-            'bon_etat': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre en bon état'}),
-            'mauvais_etat': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre en mauvais état'}),
-            'tables_bancs_1_place': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tables-bancs 1 place'}),
-            'tables_bancs_2_places': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tables-bancs 2 places'}),
-            'tables_bancs_4_places': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tables-bancs 4 places'}),
-            'besoins_places_assises': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de places assises nécessaires'}),
-        }
-        labels = {
-            'tables_maitre': 'Tables pour maîtres',
-            'bureaux_maitre': 'Bureaux pour maîtres',
-            'chaises_maitre': 'Chaises pour maîtres',
-            'tableaux_noirs': 'Tableaux noirs',
-            'tableaux_chevalets': 'Tableaux chevalets',
-            'armoires_bibliotheques': 'Armoires/Bibliothèques',
-            'machines_a_ecrire': 'Machines à écrire',
-            'projecteurs_diapos': 'Projecteurs de diapositives',
-            'ordinateurs': 'Ordinateurs',
-            'calculatrices': 'Calculatrices',
-            'bon_etat': 'Équipements en bon état',
-            'mauvais_etat': 'Équipements en mauvais état',
-            'tables_bancs_1_place': 'Tables-bancs 1 place',
-            'tables_bancs_2_places': 'Tables-bancs 2 places',
-            'tables_bancs_4_places': 'Tables-bancs 4 places',
-            'besoins_places_assises': 'Besoins en places assises',
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : Bureau du maître'}),
+            'etat': forms.Select(attrs={'class': 'form-select'}),
+            'nombre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex : 10'}),
         }
 
+# Formulaire pour Mobilier Élève
+class MobilierEleveForm(forms.ModelForm):
+    class Meta:
+        model = MobilierEleve
+        fields = ['type_table_banc', 'etat', 'nombre']
+        widgets = {
+            'type_table_banc': forms.Select(attrs={'class': 'form-select'}),
+            'etat': forms.Select(attrs={'class': 'form-select'}),
+            'nombre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex : 30'}),
+        }
 
 from django import forms
 from .models import EquipementDidactique

@@ -6,8 +6,8 @@
     {% include 'include/sidebar.html' %}
 
     <!-- Contenu principal -->
-    <div class="container mt-4">
-        <h2 class="text-center mb-4 text-primary fw-bold">🏢 Gestion des Locaux</h2>
+    <div class="container-fluid mt-4">
+        <h2 class="text-center mb-4 text-primary fw-bold">🏢 CARACTÉRISTIQUES ET ÉTAT DES LOCAUX</h2>
 
         <!-- Messages de succès -->
         {% if messages %}
@@ -19,62 +19,78 @@
         {% endif %}
 
         <!-- Barre de recherche -->
-        <form method="GET" class="mb-3 d-flex">
-            <input type="text" name="q" class="form-control me-2" placeholder="Rechercher un local..." value="{{ query }}">
-            <button type="submit" class="btn btn-primary">Rechercher</button>
+        <form method="post" class="mb-4">
+            {% csrf_token %}
+            <div class="row">
+                {% for field in form %}
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <label class="fw-bold text-secondary">{{ field.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"></span>
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                <div class="checkbox-group">
+                                    {% for checkbox in field %}
+                                        <div class="form-check">
+                                            {{ checkbox.tag }} {{ checkbox.choice_label }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
         </form>
-
-        <!-- Formulaire -->
-        <div class="card p-4 shadow-lg mb-4">
-            <h4 class="fw-bold text-primary mb-3">
-                {% if local %} Modifier le Local {% else %} Ajouter un Local {% endif %}
-            </h4>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-success w-100 fw-bold">
-                    {% if local %} Mettre à Jour {% else %} Enregistrer {% endif %}
-                </button>
-            </form>
-        </div>
 
         <!-- Liste des Locaux -->
         <div class="card p-4 shadow-lg">
             <h4 class="text-primary fw-bold mb-3">📋 Liste des Locaux</h4>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Numéro</th>
-                        <th>Affectation</th>
-                        <th>Année</th>
-                        <th>Surface</th>
-                        <th>État des Murs</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for local in locaux %}
-                    <tr>
-                        <td>{{ local.numero }}</td>
-                        <td>{{ local.affectation }}</td>
-                        <td>{{ local.annee_mise_en_service }}</td>
-                        <td>{{ local.surface }} m²</td>
-                        <td>{{ local.etat_murs }}</td>
-                        <td>
-                            <a href="{% url 'gestion_locaux' local.id %}" class="btn btn-warning btn-sm">Modifier</a>
-                            <form method="POST" action="{% url 'supprimer_local' local.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">Aucun local trouvé.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Affectation</th>
+                            <th>Année</th>
+                            <th>Surface</th>
+                            <th>État des Murs</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for local in locaux %}
+                        <tr>
+                            <td class="text-center">{{ local.numero }}</td>
+                            <td>
+                                {% if local.affectation.all %}
+                                    {{ local.affectation.all|join:", " }}
+                                {% else %}
+                                    Aucune
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ local.annee_mise_en_service }}</td>
+                            <td class="text-center">{{ local.surface }} m²</td>
+                            <td class="text-center">{{ local.etat_murs }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'gestion_locaux' local.id %}" class="btn btn-warning btn-sm">✏️ Modifier</a>
+                                <form method="POST" action="{% url 'supprimer_local' local.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">🗑️ Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Aucun local trouvé.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div> 
         </div>
     </div>
 </div>

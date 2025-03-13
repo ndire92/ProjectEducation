@@ -73,26 +73,51 @@
     <!-- Liste des localités -->
     <div class="card p-4 shadow-lg">
         <h4 class="text-primary fw-bold mb-3">📋 <i class="fas fa-leaf me-2"></i> Environnement S.E de la localité</h4>
-        <table class="table table-striped">
-            <thead>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover shadow-sm">
+            <thead class="table-dark text-white">
                 <tr>
                     <th>Type Accès</th>
-                    <th>Électricité</th>
+                    <th>Électricité Disponible</th>
                     <th>Type d'Eau</th>
+                    <th>Service Santé Disponible</th>
+                    <th>Type de Service Santé</th>
+                    <th>Mosquée Disponible</th>
+                    <th>Mahadra Disponible</th>
+                    <th>Bibliothèque Disponible</th>
+                    <th>Terrain de Sport Disponible</th>
+                    <th>Autres Structures d'Animation</th>
+                    <th>Activités Dominantes</th>
                     <th>Type de Marché</th>
+                    <th>Type de Coopération</th>
+                    <th>Développement Socio-Économique</th>
+                    <th>Secteur d'Intervention</th>
+                    <th>Bailleurs ou ONG</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for localite in localites %}
+                {% for item in localites %}
                 <tr>
-                    <td>{{ localite.type_acces }}</td>
-                    <td>{{ localite.electricite_disponible|yesno:"Oui,Non" }}</td>
-                    <td>{{ localite.type_eau }}</td>
-                    <td>{{ localite.type_marche }}</td>
+                    <td>{{ item.type_acces }}</td>
+                    <td>{{ item.electricite_disponible|yesno:"Oui,Non" }}</td>
+                    <td>{{ item.type_eau }}</td>
+                    <td>{{ item.service_sante_disponible|yesno:"Oui,Non" }}</td>
+                    <td>{{ item.type_service_sante }}</td>
+                    <td>{{ item.mosquee_disponible|yesno:"Oui,Non" }}</td>
+                    <td>{{ item.mahadra_disponible|yesno:"Oui,Non" }}</td>
+                    <td>{{ item.bibliotheque_disponible|yesno:"Oui,Non" }}</td>
+                    <td>{{ item.terrain_sport_disponible|yesno:"Oui,Non" }}</td>
+                    <td>{{ item.autres_structures_animation }}</td>
+                    <td>{{ item.activites_dominantes.all|join:", " }}</td>
+                    <td>{{ item.type_marche }}</td>
+                    <td>{{ item.type_de_coperation }}</td>
+                    <td>{{ item.developpe_socio_économique|yesno:"Oui,Non" }}</td>
+                    <td>{{ item.secteur_intervention }}</td>
+                    <td>{{ item.bailleurs_ong }}</td>
                     <td>
-                        <a href="{% url 'gestion_localites' localite.id %}" class="btn btn-warning btn-sm">Modifier</a>
-                        <form method="POST" action="{% url 'supprimer_localite' localite.id %}" style="display:inline;">
+                        <a href="{% url 'gestion_localites' item.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                        <form method="POST" action="{% url 'supprimer_localite' item.id %}" style="display:inline;">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                         </form>

@@ -1,10 +1,10 @@
 from django.contrib import admin
 from .models import (
-    Activite, Activite_APE, CustomUser, Ecole_identification, LocaliteRurale, Ecole, Local, 
-    MobilierEtEquipements, EquipementDidactique, GuideEtManuel, Personnel, 
-    NouveauxInscrits, DivisionPedagogique, AireRecrutement, StatistiqueGenerale, 
+    Activite, Activite_APE, Affec, CustomUser, Do, Ecole_identification, EtatFenetre, EtatMur, EtatPorte, EtatSol, EtatToit, LocaliteRurale, Ecole, Local
+    , EquipementDidactique, GuideEtManuel, NatureMur, NatureSol, NatureToit, Personnel, 
+    NouveauxInscrits, DivisionPedagogique, AireRecrutement, SourceFinancement, StatistiqueGenerale, 
     MobiliteEleves, StructurePedagogique, FinancesEcole, ObservationEventuelle, 
-    SignatureEtCachet
+    SignatureEtCachet,MobilierCollectif, MobilierEleve,
 )
 
 
@@ -45,19 +45,25 @@ class EcoleAdmin(admin.ModelAdmin):
     list_filter = ('info_ecole', 'accessible_toute_annee', 'eau_disponible', 'electricite_disponible')
 
 # Modèle Local
-@admin.register(Local)
 class LocalAdmin(admin.ModelAdmin):
-    list_display = ('numero', 'affectation', 'annee_mise_en_service', 'surface', 'etat_murs', 'etat_toit')
-    search_fields = ('affectation', 'numero')
-    list_filter = ('etat_murs', 'etat_toit')
+    list_display = ['numero', 'get_affectations', 'annee_mise_en_service', 'surface']
+    
+    def get_affectations(self, obj):
+        return ", ".join([affectation.nom for affectation in obj.Affectation_du_local.all()])
+    
+    get_affectations.short_description = "Affectation"
+
+admin.site.register(Local, LocalAdmin)
 
 # Modèle MobilierEtEquipements
-@admin.register(MobilierEtEquipements)
-class MobilierEtEquipementsAdmin(admin.ModelAdmin):
-    list_display = ('tables_maitre', 'bureaux_maitre', 'ordinateurs', 'bon_etat', 'mauvais_etat')
-    search_fields = ('tables_maitre', 'ordinateurs')
-    list_filter = ('bon_etat', 'mauvais_etat')
 
+@admin.register(MobilierCollectif)
+class MobilierCollectifAdmin(admin.ModelAdmin):
+    list_display = ['nom', 'etat', 'nombre']
+
+@admin.register(MobilierEleve)
+class MobilierEleveAdmin(admin.ModelAdmin):
+    list_display = ['type_table_banc', 'etat', 'nombre']
 # Modèle EquipementDidactique
 @admin.register(EquipementDidactique)
 class EquipementDidactiqueAdmin(admin.ModelAdmin):
@@ -148,3 +154,15 @@ class SignatureEtCachetAdmin(admin.ModelAdmin):
 
 admin.site.register(Activite)
 admin.site.register(Activite_APE)
+admin.site.register(Affec)
+admin.site.register(Do)
+admin.site.register(NatureMur)
+admin.site.register(EtatMur)
+admin.site.register(NatureToit)
+admin.site.register(EtatToit)
+admin.site.register(EtatSol)
+admin.site.register(NatureSol)
+admin.site.register(EtatPorte)
+admin.site.register(EtatFenetre)
+
+admin.site.register(SourceFinancement)

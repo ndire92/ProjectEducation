@@ -22,8 +22,8 @@ class CustomUser(AbstractUser):
 
 
 class Ecole_identification(models.Model):
-    ancien_code = models.CharField(max_length=50, null=True, blank=True)  # Ancien code de l'école
-    nouveau_code = models.CharField(max_length=50, null=True, blank=True)  # Nouveau code de l'école
+    ancien_code = models.IntegerField(max_length=50, null=True, blank=True)  # Ancien code de l'école
+    nouveau_code = models.IntegerField(max_length=50, null=True, blank=True)  # Nouveau code de l'école
     nom = models.CharField(max_length=200)  # Nom de l'école
     ancien_nom = models.CharField(max_length=200, null=True, blank=True)  # Ancien nom de l'école
     date_creation = models.DateField(null=True, blank=True)  # Date de création de l'école
@@ -226,7 +226,7 @@ class Ecole(models.Model):
     hommes_ape = models.IntegerField(null=True, blank=True)
     activites_ape = models.ManyToManyField(
         'Activite_APE',
-        related_name="localites",
+        related_name="ecoles",
         help_text="Sélectionnez jusqu'à trois activités."
     )  # Modèle pour stocker les activités
 
@@ -264,63 +264,206 @@ class Activite_APE(models.Model):
         return self.get_nom_display()
 
 #----------------------------------------CARACTÉRISTIQUES ET ÉTAT DES LOCAUX---------------------------
+Affectation = [
+    ('Salle_de_classe_utiliseé', 'Salle de classe utiliseé'),
+    ('salle_de_classe _non_utiliseé', 'Salle de classe  non utiliseé'),
+    ('magasin_pédagogique', 'Magasin pédagogique'),
+    (' magasin alimantaire', 'Magasin alimantaire'),
+    ('Bureau_directeur', 'Bureau directeur'),
+    ('logement', 'Logement'),
+    ('réfectoire', 'Réfectoire'),
+]
+DONT= [
+    ('Salle_autre_école', 'Salle autre école'),
+    ('Local_emprunté_loué', 'Local emprunté / loué'),
+
+]
+Nature_Murs= [
+    ('en_dur', 'En dur'),
+    ('semi_dur', 'Semi dur'),
+    ('banco', 'Banco'),
+    ('paillotes', 'Paillotes'),
+    ('autres', 'Autres'),
+
+]
+Etat_Murs= [
+    ('bon_acceptable', 'Bon / acceptable'),
+    ('mauvais', 'Mauvais'),
+
+]
+
+Nature_Toit= [
+    ('dur', 'Dur'),
+    ('tole', 'Tole'),
+    ('chaume', 'Chaume'),
+    ('autres', 'Autres'),
+
+]
+
+Etat_Toit= [
+    ('bon_acceptable', 'Bon / acceptable'),
+    ('mauvais', 'Mauvais'),
+
+]
+Nature_Sol= [
+    ('ciment', 'Ciment'),
+    ('terre', 'Terre'),
+    ('autres', 'Autres'),
+
+]
+Etat_Sol= [
+    ('bon_acceptable', 'Bon / acceptable'),
+    ('mauvais', 'Mauvais'),
+
+]
+Etat_Porte= [
+    ('bon_acceptable', 'Bon / acceptable'),
+    ('mauvais', 'Mauvais'),
+    ('Non_installées', 'Non installées'),
+
+]
+Etat_Fe= [
+    ('bon_acceptable', 'Bon / acceptable'),
+    ('mauvais', 'Mauvais'),
+    ('Non_installées', 'Non installées'),
+    
+
+]
+Source_Fe= [
+    ('etat', 'Etat'),
+    ('commune', 'Commune'),
+    ('parents', 'Parents'),
+    
+
+]
+from django.db import models
+
+class Affec(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class Do(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class NatureMur(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class EtatMur(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class NatureToit(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class EtatToit(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class NatureSol(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class EtatSol(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class EtatPorte(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class EtatFenetre(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
+
+class SourceFinancement(models.Model):
+    nom = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nom
 
 class Local(models.Model):
-    numero = models.IntegerField()  # Numéro du local
-    affectation = models.CharField(max_length=200)  # Salle de classe, magasin, etc.
+    numero = models.IntegerField(unique=True)  # Numéro du local
+    affectation_du_local = models.ManyToManyField(Affec, related_name="locaux")
+    dont = models.ManyToManyField(Do, related_name="locaux")
     annee_mise_en_service = models.IntegerField(null=True, blank=True)
-    surface = models.FloatField(null=True, blank=True)  # Surface en m²
+    surface = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Surface en m²
 
     # Caractéristiques physiques
-    nature_murs = models.CharField(max_length=50)  # Ex : En dur, semi-dur, paillotes
-    etat_murs = models.CharField(max_length=50, choices=[('bon', 'Bon/Acceptable'), ('mauvais', 'Mauvais')])
-    nature_toit = models.CharField(max_length=50)  # Ex : Dur, tôle, chaume
-    etat_toit = models.CharField(max_length=50, choices=[('bon', 'Bon/Acceptable'), ('mauvais', 'Mauvais')])
-    nature_sol = models.CharField(max_length=50)  # Ex : Ciment, terre
-    etat_sol = models.CharField(max_length=50, choices=[('bon', 'Bon/Acceptable'), ('mauvais', 'Mauvais')])
+    nature_murs = models.ManyToManyField(NatureMur, related_name="locaux")
+    etat_murs = models.ManyToManyField(EtatMur, related_name="locaux")
+    nature_toit = models.ManyToManyField(NatureToit, related_name="locaux")
+    etat_toit = models.ManyToManyField(EtatToit, related_name="locaux")
+    nature_sol = models.ManyToManyField(NatureSol, related_name="locaux")
+    etat_sol = models.ManyToManyField(EtatSol, related_name="locaux")
 
     # Portes et fenêtres
-    etat_portes = models.CharField(max_length=50, choices=[('bon', 'Bon'), ('mauvais', 'Mauvais'), ('non_installe', 'Non installées')])
-    etat_fenetres = models.CharField(max_length=50, choices=[('bon', 'Bon'), ('mauvais', 'Mauvais'), ('non_installe', 'Non installées')])
+    etat_portes = models.ManyToManyField(EtatPorte, related_name="locaux")
+    etat_fenetres = models.ManyToManyField(EtatFenetre, related_name="locaux")
 
     # Source de financement
-    source_financement = models.CharField(max_length=50, choices=[('parents', 'Parents'), ('autres', 'Autres')], null=True, blank=True)
+    source_financement = models.ManyToManyField(SourceFinancement, related_name="locaux")
 
     # Observations supplémentaires
     observations = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"Local nº{self.numero} ({self.affectation})"
+        return f"Local nº{self.numero}"
+
 
 #----------------------------------CARACTÉRISTIQUES  DU MOBILIER ET DES ÉQUIPEMENTS---------------------------
 
-class MobilierEtEquipements(models.Model):
-    # Mobilier collectif
-    tables_maitre = models.IntegerField(null=True, blank=True)  # Nombre de tables pour les maîtres
-    bureaux_maitre = models.IntegerField(null=True, blank=True)  # Nombre de bureaux des maîtres
-    chaises_maitre = models.IntegerField(null=True, blank=True)  # Nombre de chaises pour les maîtres
-    tableaux_noirs = models.IntegerField(null=True, blank=True)  # Nombre de tableaux noirs
-    tableaux_chevalets = models.IntegerField(null=True, blank=True)  # Nombre de tableaux chevalets
-    armoires_bibliotheques = models.IntegerField(null=True, blank=True)  # Nombre d'armoires/bibliothèques
-    machines_a_ecrire = models.IntegerField(null=True, blank=True)  # Nombre de machines à écrire
-    projecteurs_diapos = models.IntegerField(null=True, blank=True)  # Nombre de projecteurs
-    ordinateurs = models.IntegerField(null=True, blank=True)  # Nombre d'ordinateurs
-    calculatrices = models.IntegerField(null=True, blank=True)  # Nombre de calculatrices
+ETAT_CHOIX = [
+    ('bon_acceptable', 'Bon / acceptable'),
+    ('mauvais', 'Mauvais'),
+]
 
-    # État général (collectif)
-    bon_etat = models.IntegerField(default=0)  # Nombre en bon état/acceptable
-    mauvais_etat = models.IntegerField(default=0)  # Nombre en mauvais état
+# Choix pour les types de mobiliers des élèves
+TYPE_TABLE_BANC = [
+    ('1_place', '1 place'),
+    ('2_places', '2 places'),
+    ('4_places', '4 places'),
+]
 
-    # Mobilier pour élèves
-    tables_bancs_1_place = models.IntegerField(null=True, blank=True)  # Nombre de tables-bancs 1 place
-    tables_bancs_2_places = models.IntegerField(null=True, blank=True)  # Nombre de tables-bancs 2 places
-    tables_bancs_4_places = models.IntegerField(null=True, blank=True)  # Nombre de tables-bancs 4 places
-
-    # Besoins
-    besoins_places_assises = models.IntegerField(null=True, blank=True)  # Nombre de places assises nécessaires
+class MobilierCollectif(models.Model):
+    # Mobilier et équipements collectifs
+    nom = models.CharField(max_length=100)  # Exemple : Tableau, Bureau de maître
+    etat = models.CharField(max_length=20, choices=ETAT_CHOIX)
+    nombre = models.PositiveIntegerField(default=0)  # Quantité
 
     def __str__(self):
-        return f"Mobilier et équipements - ID {self.id}"
+        return f"{self.nom} - {self.etat} ({self.nombre})"
+
+
+class MobilierEleve(models.Model):
+    # Mobilier pour les élèves
+    type_table_banc = models.CharField(max_length=10, choices=TYPE_TABLE_BANC)  # Exemple : 1 place, 2 places
+    etat = models.CharField(max_length=20, choices=ETAT_CHOIX)
+    nombre = models.PositiveIntegerField(default=0)  # Quantité
+
+
 
 #-----------------------------------ÉQUIPEMENTS DIDACTIQUES--------------------------
 

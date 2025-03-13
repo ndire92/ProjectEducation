@@ -31,7 +31,15 @@
             {% endfor %}
         </div>
         {% endif %}
-
+        {% if form.errors %}
+        <ul class="text-danger">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
         <!-- Barre de recherche -->
         <form method="GET" class="mb-3 d-flex">
             <input type="text" name="q" class="form-control me-2 border-primary shadow-sm rounded-3" placeholder="🔎 Rechercher une école..." value="{{ query }}">
@@ -83,54 +91,92 @@
                 <thead class="table-dark text-white">
                     <tr>
                         <th>Nom</th>
-                        <th>Ouverte</th>
+                        <th>Statut (Ouverte/Veilleuse)</th>
                         <th>Accessible toute l'année</th>
                         <th>Eau disponible</th>
                         <th>Type d'eau</th>
                         <th>Électricité disponible</th>
                         <th>Cantine fonctionnelle</th>
                         <th>Nombre de rationnaires</th>
+                        <th>Nombre de filles bénéficiaires</th>
                         <th>Source de financement</th>
+                        <th>Laves-mains disponibles</th>
                         <th>Nombre de lave-mains</th>
                         <th>Domaine clôturé</th>
+                        <th>Superficie clôturée</th>
+                        <th>Type de clôture</th>
                         <th>Espace de récréation</th>
-                        <th>Superficie</th>
-                        <th>Latrines filles</th>
-                        <th>Latrines garçons</th>
-                        <th>APE</th>
-                        <th>Femmes APE</th>
-                        <th>Hommes APE</th>
+                        <th>Superficie de récréation</th>
+                        <th>Jardin scolaire</th>
+                        <th>Utilisation de la production du jardin</th>
+                        <th>Nombre total de latrines</th>
+                        <th>Latrines pour filles</th>
+                        <th>Latrines pour garçons</th>
+                        <th>Latrines mixtes</th>
+                        <th>APE existe</th>
+                        <th>Femmes dans l'APE</th>
+                        <th>Hommes dans l'APE</th>
+                        <th>Activités APE</th>
+                        <th>Présidence APE</th>
                         <th>Comité de gestion</th>
-                        <th>Distance centre santé</th>
-
+                        <th>Femmes dans le comité</th>
+                        <th>Hommes dans le comité</th>
+                        <th>Présidence comité</th>
+                        <th>Distance au centre de santé</th>
+                        <th>Apport en vitamine A</th>
+                        <th>Boîte pharmacie disponible</th>
+                        <th>Visite médicale l'année dernière</th>
+                        <th>Campagne de déparasitage</th>
+                        <th>Sensibilisation au VIH</th>
+                        <th>Sensibilisation au paludisme</th>
+                        <th>Association d'élèves</th>
                         <th>Actions</th>
-                    </tr>
                 </thead>
                 <tbody>
                     {% for ecole in ecoles %}
-                    <tr>
+                    
                         <td>{{ ecole.nom }}</td>
-                        <td>{{ ecole.ouverte|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.info_ecole }}</td>
                         <td>{{ ecole.accessible_toute_annee|yesno:"Oui,Non" }}</td>
                         <td>{{ ecole.eau_disponible|yesno:"Oui,Non" }}</td>
                         <td>{{ ecole.type_eau }}</td>
                         <td>{{ ecole.electricite_disponible|yesno:"Oui,Non" }}</td>
-
                         <td>{{ ecole.cantine_fonctionnelle|yesno:"Oui,Non" }}</td>
                         <td>{{ ecole.nb_rationnaires }}</td>
+                        <td>{{ ecole.nb_de_fille_beneficiaires }}</td>
                         <td>{{ ecole.source_financement }}</td>
+                        <td>{{ ecole.laves_mains_disponibles|yesno:"Oui,Non" }}</td>
                         <td>{{ ecole.nb_laves_mains }}</td>
                         <td>{{ ecole.domaine_cloture|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.superficie_cloture }}</td>
+                        <td>{{ ecole.type_cloture }}</td>
                         <td>{{ ecole.espace_recreation_disponible|yesno:"Oui,Non" }}</td>
                         <td>{{ ecole.superficie_recreation }}</td>
+                        <td>{{ ecole.jardin_scolaire|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.utilisation_de_la_produit }}</td>
+                        <td>{{ ecole.nb_total_latrines }}</td>
                         <td>{{ ecole.nb_latrines_filles }}</td>
                         <td>{{ ecole.nb_latrines_garcons }}</td>
+                        <td>{{ ecole.nb_latrines_mixt }}</td>
                         <td>{{ ecole.ape_existe|yesno:"Oui,Non" }}</td>
                         <td>{{ ecole.femmes_ape }}</td>
                         <td>{{ ecole.hommes_ape }}</td>
+                        <td>{{ ecole.activites_ape.all|join:", " }}</td>
+                        <td>{{ ecole.presidence_ape }}</td>
                         <td>{{ ecole.comite_gestion_existe|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.femmes_comite }}</td>
+                        <td>{{ ecole.hommes_comite }}</td>
+                        <td>{{ ecole.presidence_comite }}</td>
                         <td>{{ ecole.distance_centre_sante }}</td>
-
+                        <td>{{ ecole.apport_en_vitamine_A|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.boite_pharmacie_disponible|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.visite_médicale_année_dernière|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.campagne_de_déparasitage|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.campagne_de_sensibilisation_au_VIH|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.campagne_de_sensibilisation_au_palu|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.association_eleve|yesno:"Oui,Non" }}</td>
+                    
+                    
 
                         <td>
                             <a href="{% url 'gestion_ecole' ecole.id %}" class="btn btn-warning btn-sm fw-bold">✏ Modifier</a>
