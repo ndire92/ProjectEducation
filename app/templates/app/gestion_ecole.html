@@ -2,7 +2,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<style>
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .checkbox-item {
+        width: 30%;  /* Trois éléments par ligne */
+        margin-right: 1.5%;
+        margin-bottom: 10px;
+    }
+    
+    .checkbox-item:nth-child(3n) {
+        margin-right: 0;
+    }
+    
+</style>
     <!-- Contenu principal -->
     <div class="container mt-4">
         <h2 class="text-center mb-4 text-primary fw-bold">🎓 Gestion des Écoles</h2>
@@ -25,32 +41,38 @@
         <!-- Formulaire -->
   <!-- Formulaire avec affichage en colonnes -->
 <!-- Formulaire avec affichage en colonnes et champs stylisés -->
-<div class="card p-4 mb-4">
 
-    <h4 class="text-primary fw-bold">
-        {% if ecole %}✏ Modifier l'École{% else %}🏫 Ajouter une École{% endif %}
-    </h4>
-
-    <form method="post" class="mt-3">
-        {% csrf_token %}
-
-        <div class="row">
-            {% for field in form %}
-                <div class="col-md-4 col-sm-6 mb-3">
-                    <label class="fw-bold text-secondary">{{ field.label }}</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light text-muted"></span>
-                        {{ field }}
+    <!-- Formulaire -->
+    <div class="card p-4 mb-4">
+        <h4 class="text-primary fw-bold">
+            {% if ecole %}✏ Modifier l'École{% else %}🏫 Ajouter une École{% endif %}
+        </h4>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                {% for field in form %}
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <label class="fw-bold text-secondary">{{ field.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"></span>
+                            {% if field.name == 'activites_ape' %}
+                                <div class="checkbox-group">
+                                    {% for checkbox in field %}
+                                        <div class="checkbox-item">
+                                            {{ checkbox.tag }} {{ checkbox.choice_label }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-
-        <button type="submit" class="btn btn-success w-100 fw-bold py-2 mt-3">
-            {% if ecole %}🔄 Mettre à Jour{% else %}✅ Enregistrer{% endif %}
-        </button>
-    </form>
-</div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+        </form>
+    </div>
 
 
         <!-- Liste des Écoles -->

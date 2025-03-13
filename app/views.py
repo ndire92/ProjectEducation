@@ -87,7 +87,8 @@ def logout_view(request):
     return redirect('login')
 
 def gestion_ecole(request, pk=None):
-    ecole = get_object_or_404(Ecole, pk=pk) if pk else None
+    # Si pk est fourni, on charge l'école correspondante, sinon on initialise une nouvelle école
+    ecole = get_object_or_404(Ecole, pk=pk) if pk else Ecole()
 
     # Filtrage basé sur la recherche
     query = request.GET.get('q', '')
@@ -102,14 +103,15 @@ def gestion_ecole(request, pk=None):
             form.save()
             messages.success(request, "École enregistrée avec succès !")
             return redirect('gestion_ecole')
-
+        else:
+            messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
         form = EcoleForm(instance=ecole)
 
     return render(request, 'app/gestion_ecole.html', {
-        'form': form, 
-        'ecoles': ecoles, 
-        'ecole': ecole, 
+        'form': form,
+        'ecoles': ecoles,
+        'ecole': ecole,
         'query': query
     })
 

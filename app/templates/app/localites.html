@@ -1,12 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .checkbox-item {
+        width: 30%;  /* Trois éléments par ligne */
+        margin-right: 1.5%;
+        margin-bottom: 10px;
+    }
+    
+    .checkbox-item:nth-child(3n) {
+        margin-right: 0;
+    }
+    
+</style>
 
-<div class="d-flex">
-    <!-- Sidebar -->
-    {% include 'include/sidebar.html' %}
 <div class="container mt-4">
-    <h2 class="text-center text-primary fw-bold mb-4">🌍 Gestion des Localités Rurales</h2>
+    <h2 class="text-center text-primary fw-bold mb-4">🌍 <i class="fas fa-leaf me-2"></i> Environnement S.E de la localité</h2>
 
     <!-- Messages de succès -->
     {% if messages %}
@@ -24,22 +38,41 @@
     </form>
 
     <!-- Formulaire -->
-    <div class="card p-4 shadow-lg mb-4">
+    <div class="card p-4 mb-4">
         <h4 class="fw-bold text-primary mb-3">
             {% if localite %} Modifier la Localité {% else %} Ajouter une Localité {% endif %}
         </h4>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-success w-100 fw-bold">
-                {% if localite %} Mettre à Jour {% else %} Enregistrer {% endif %}
-            </button>
+            <div class="row">
+                {% for field in form %}
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <label class="fw-bold text-secondary">{{ field.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"></span>
+                            {% if field.name == 'activites_dominantes' %}
+                                <div class="checkbox-group">
+                                    {% for checkbox in field %}
+                                        <div class="checkbox-item">
+                                            {{ checkbox.tag }} {{ checkbox.choice_label }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
         </form>
+        
     </div>
 
     <!-- Liste des localités -->
     <div class="card p-4 shadow-lg">
-        <h4 class="text-primary fw-bold mb-3">📋 Liste des Localités</h4>
+        <h4 class="text-primary fw-bold mb-3">📋 <i class="fas fa-leaf me-2"></i> Environnement S.E de la localité</h4>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -74,5 +107,5 @@
         </table>
     </div>
 </div>
-</div>
+
 {% endblock %}

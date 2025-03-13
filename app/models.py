@@ -1,5 +1,6 @@
+from django import forms
 from django.db import models
-
+from django.core.exceptions import ValidationError
 # Create your models here.
 #identification et de localisation d'une éco
 from django.contrib.auth.models import AbstractUser
@@ -58,8 +59,19 @@ class Ecole_identification(models.Model):
 
 #-------------------l'environnement socio-économique des localités-----------------
 
+# Définition des choix en dehors de la classe
+ACTIVITES_CHOICES = [
+    ('cultures_vivrières', 'Cultures vivrières'),
+    ('elevage', 'Élevage'),
+    ('cultures_maraîchères', 'Cultures maraîchères'),
+    ('peche', 'Pêche'),
+    ('cultures_fruitières', 'Cultures fruitières'),
+    ('artisanat', 'Artisanat'),
+    ('cultures_industrielles', 'Cultures industrielles'),
+    ('autres', 'Autres'),
+]
+
 class LocaliteRurale(models.Model):
-    # Accès à la localité
     type_acces = models.CharField(max_length=100, choices=[
         ('route_goudronnee', 'Route goudronnée'),
         ('route_bitumee', 'Route bitumée'),
@@ -68,10 +80,8 @@ class LocaliteRurale(models.Model):
         ('uniquement_pied', 'Accessible uniquement à pied'),
         ('autre', 'Autre accès (à préciser)')
     ])
-    autre_acces = models.TextField(null=True, blank=True)  # Pour préciser "autre accès"
 
-    # Services et infrastructures
-    electricite_disponible = models.BooleanField()  # Localité alimentée en électricité
+    electricite_disponible = models.BooleanField()
     type_eau = models.CharField(max_length=100, choices=[
         ('robinets', 'Robinets'),
         ('puits_cloture', 'Puits clôturés ou avec margelle'),
@@ -80,6 +90,7 @@ class LocaliteRurale(models.Model):
         ('eaux_surface', 'Fleuve, mare, marigot'),
         ('forage', 'Forage')
     ])
+
     service_sante_disponible = models.BooleanField()
     type_service_sante = models.CharField(max_length=100, choices=[
         ('poste', 'Poste de santé'),
@@ -87,81 +98,171 @@ class LocaliteRurale(models.Model):
         ('autres', 'Autres services de santé')
     ], null=True, blank=True)
 
-    # Structures communautaires
     mosquee_disponible = models.BooleanField()
     mahadra_disponible = models.BooleanField()
     bibliotheque_disponible = models.BooleanField()
     terrain_sport_disponible = models.BooleanField()
-    autres_structures_animation = models.TextField(null=True, blank=True)  # Précisions
+    autres_structures_animation = models.TextField(null=True, blank=True)
 
-    # Activités économiques
-    activites_dominantes = models.TextField()  # À enregistrer sous forme de liste (3 activités)
+    # Utilisation de ManyToManyField pour plusieurs choix
+    activites_dominantes = models.ManyToManyField(
+        'Activite',  # Modèle pour stocker les activités
+        related_name="localites",
+        help_text="Sélectionnez jusqu'à trois activités économiques dominantes."
+    )
 
-    # Marchés
     type_marche = models.CharField(max_length=100, choices=[
         ('permanent', 'Permanent'),
         ('hebdomadaire', 'Hebdomadaire'),
         ('absent', 'Pas de marché')
     ])
 
-    # Projets de développement
-    projets_developpement_existent = models.BooleanField()
-    secteurs_intervention = models.TextField(null=True, blank=True)  # Détails des secteurs
-    bailleurs_ong = models.TextField(null=True, blank=True)  # Nom des bailleurs ou ONG
+    type_de_coperation = models.CharField(max_length=100, choices=[
+        ('agricole', 'Agricole'),
+        ('pastoral', 'Pastoral'),
+        ('artisanal', 'Artisanal'),
+        ('autre', 'Autres')
+    ])
+
+    developpe_socio_économique = models.BooleanField()
+    secteur_intervention = models.CharField(max_length=100, choices=[
+        ('agricole', 'Agricole'),
+        ('pastoral', 'Pastoral'),
+        ('hydraulique', 'Hydraulique'),
+        ('sante', 'Santé'),
+        ('educatif', 'Éducatif'),
+        ('artisanal', 'Artisanal'),
+    ], null=True, blank=True)
+
+    bailleurs_ong = models.TextField(null=True, blank=True)
+    
+    def clean_activites_dominantes(self):
+        activites = self.cleaned_data.get('activites_dominantes')
+        if activites.count() > 3:
+            raise forms.ValidationError("Vous ne pouvez sélectionner que trois activités économiques dominantes.")
+        
+        return activites
+
 
     def __str__(self):
         return f"Localité rurale - Accès {self.type_acces}"
+
+
+class Activite(models.Model):
+    nom = models.CharField(max_length=100, choices=ACTIVITES_CHOICES, unique=True)
+
+    def __str__(self):
+        return self.get_nom_display()
 #----------------------------INFORMATIONS GÉNÉRALES SUR L'ÉCOLE----------------------------
+ACTIVITES_APE_CHOICES = [
+    ('construction', 'Construction'),
+    ('réhabilitation', 'Réhabilitation'),
+    ('suivi_présence_des_enseignants', 'Suivi présence des enseignants'),
+    ('Activités_de_sensibilisation', 'Activités de sensibilisation'),
+    ('cantine', 'Cantine'),
+    ('autres', 'Autres'),
+]
 
 class Ecole(models.Model):
-    nom = models.CharField(max_length=200)  # Nom de l'école (ajout manuel)
-    ouverte = models.BooleanField(default=True)  # École ouverte ou en veilleuse
+    nom = models.CharField(max_length=200)  # Nom de l'école
+    info_ecole = models.CharField(max_length=20, choices=[
+        ('ouverte', 'ouverte'),
+        ('veilleuse', 'Veilleuse')
+    ], null=True, blank=True)  # Statut de l'école
+
     accessible_toute_annee = models.BooleanField()  # Accessible toute l'année
 
     # Ressources
     eau_disponible = models.BooleanField()  # École alimentée en eau
-    type_eau = models.CharField(max_length=50, null=True, blank=True)  # Robinet, puits, etc.
-   
+    type_eau = models.CharField(max_length=20, choices=[
+        ('robiet', 'Robiet'),
+        ('citerne', 'Citerne'),
+        ('puits_avec_cloture', 'Puits avec cloture'),
+        ('puits_avec_margelle', 'Puits avec margelle'),
+    ], null=True, blank=True)
     nb_postes_eau = models.IntegerField(null=True, blank=True)  # Nombre de postes d'eau
     electricite_disponible = models.BooleanField()  # Électricité disponible
-    
     nb_classes_electrifiees = models.IntegerField(null=True, blank=True)
 
     # Infrastructures
     cantine_fonctionnelle = models.BooleanField()
     nb_rationnaires = models.IntegerField(null=True, blank=True)  # Nombre de rationnaires
-    source_financement = models.CharField(max_length=50, null=True, blank=True)  # Ex : Gvt, PAN, etc.
+    nb_de_fille_beneficiaires = models.IntegerField(null=True, blank=True)
+    source_financement = models.CharField(max_length=20, choices=[
+        ('gvt', 'GVT'),
+        ('pam', 'PAM'),
+        ('autres', 'Autres'),
+    ], null=True, blank=True)  # Ex : Gvt, PAN, etc.
     laves_mains_disponibles = models.BooleanField()
     nb_laves_mains = models.IntegerField(null=True, blank=True)
     domaine_cloture = models.BooleanField()  # Domaine scolaire clôturé
-    type_cloture = models.CharField(max_length=50, null=True, blank=True)  # Grillage, haie, etc.
+    superficie_cloture = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    type_cloture = models.CharField(max_length=20, choices=[
+        ('dur', 'Dur'),
+        ('banco', 'Banco'),
+        ('haie', 'Haie'),
+        ('grillage', 'Grillage'),
+        ('semi_dur', 'Semi-dur'),
+    ], null=True, blank=True)
 
     espace_recreation_disponible = models.BooleanField()
-    superficie_recreation = models.FloatField(null=True, blank=True)  # Superficie en m²
+    superficie_recreation = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Superficie en m²
     jardin_scolaire = models.BooleanField()
-    utilisation_jardin = models.CharField(max_length=100, null=True, blank=True)  # Utilisation de la production
+    utilisation_de_la_produit = models.CharField(max_length=20, choices=[
+        ('vendu', 'Vendu'),
+        ('distribue', 'Distribue'),
+        ('cantine', 'Cantine'),
+    ], null=True, blank=True)  # Utilisation de la production
 
     # Sanitaires
+    nb_total_latrines = models.IntegerField(null=True, blank=True)
     nb_latrines_filles = models.IntegerField(null=True, blank=True)
     nb_latrines_garcons = models.IntegerField(null=True, blank=True)
+    nb_latrines_mixt = models.IntegerField(null=True, blank=True)
 
     # Gouvernance
     ape_existe = models.BooleanField()  # APE (Association des Parents d'Élèves) existe
     femmes_ape = models.IntegerField(null=True, blank=True)
     hommes_ape = models.IntegerField(null=True, blank=True)
-    activites_ape = models.TextField(null=True, blank=True)  # Activités de l'APE
+    activites_ape = models.ManyToManyField(
+        'Activite_APE',
+        related_name="localites",
+        help_text="Sélectionnez jusqu'à trois activités."
+    )  # Modèle pour stocker les activités
 
+    presidence_ape = models.CharField(max_length=20, choices=[
+        ('homme', 'Homme'),
+        ('femme', 'Femme'),
+    ], null=True, blank=True)  # Normaliser 'Femme' en 'femme'
+    
     comite_gestion_existe = models.BooleanField()
     femmes_comite = models.IntegerField(null=True, blank=True)
     hommes_comite = models.IntegerField(null=True, blank=True)
+    presidence_comite = models.CharField(max_length=20, choices=[
+        ('homme', 'Homme'),
+        ('femme', 'Femme'),
+    ], null=True, blank=True)
 
     # Autres
-    distance_centre_sante = models.FloatField(null=True, blank=True)  # Distance en km
-    campagnes_sante = models.BooleanField()  # Campagnes de sensibilisation
-    boite_pharmacie_disponible = models.BooleanField()  # Boîte à pharmacie fonctionnelle
+    distance_centre_sante = models.IntegerField(null=True, blank=True)  # Distance en km
+    apport_en_vitamine_A = models.BooleanField()  # Supprimer la duplication de ce champ
+    boite_pharmacie_disponible = models.BooleanField()
+    visite_médicale_année_dernière = models.BooleanField()
+    campagne_de_déparasitage = models.BooleanField()
+    campagne_de_sensibilisation_au_VIH = models.BooleanField()  # Sensibilisation au VIH
+    campagne_de_sensibilisation_au_palu = models.BooleanField()
+    association_eleve = models.BooleanField()
 
     def __str__(self):
         return self.nom
+    
+    
+class Activite_APE(models.Model):
+    nom = models.CharField(max_length=100, choices=ACTIVITES_APE_CHOICES, unique=True)
+
+    def __str__(self):
+        return self.get_nom_display()
+
 #----------------------------------------CARACTÉRISTIQUES ET ÉTAT DES LOCAUX---------------------------
 
 class Local(models.Model):
@@ -451,3 +552,6 @@ class SignatureEtCachet(models.Model):
 
     def __str__(self):
         return f"{self.nom_signataire} ({self.fonction_signataire}) - Signé le {self.date_signature}"
+
+
+

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    CustomUser, Ecole_identification, LocaliteRurale, Ecole, Local, 
+    Activite, Activite_APE, CustomUser, Ecole_identification, LocaliteRurale, Ecole, Local, 
     MobilierEtEquipements, EquipementDidactique, GuideEtManuel, Personnel, 
     NouveauxInscrits, DivisionPedagogique, AireRecrutement, StatistiqueGenerale, 
     MobiliteEleves, StructurePedagogique, FinancesEcole, ObservationEventuelle, 
@@ -30,11 +30,19 @@ class LocaliteRuraleAdmin(admin.ModelAdmin):
     list_filter = ('electricite_disponible', 'type_eau', 'type_marche')
 
 # Enregistrement du modèle Ecole
+from django.contrib import admin
+from .models import Ecole
+
 @admin.register(Ecole)
 class EcoleAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'ouverte', 'accessible_toute_annee', 'eau_disponible', 'electricite_disponible')
-    search_fields = ('nom', 'type_eau')
-    list_filter = ('ouverte', 'accessible_toute_annee', 'eau_disponible', 'electricite_disponible')
+    # Définir les champs à afficher dans la liste
+    list_display = ('nom', 'info_ecole', 'accessible_toute_annee', 'eau_disponible', 'electricite_disponible')
+
+    # Définir les champs à inclure dans la recherche
+    search_fields = ('nom', 'type_eau', 'info_ecole')
+
+    # Définir les filtres à afficher dans la barre latérale
+    list_filter = ('info_ecole', 'accessible_toute_annee', 'eau_disponible', 'electricite_disponible')
 
 # Modèle Local
 @admin.register(Local)
@@ -138,3 +146,5 @@ class SignatureEtCachetAdmin(admin.ModelAdmin):
     search_fields = ('nom_signataire', 'fonction_signataire')
     list_filter = ('fonction_signataire', 'cachet_present')
 
+admin.site.register(Activite)
+admin.site.register(Activite_APE)

@@ -3,90 +3,89 @@ from .models import AireRecrutement, DivisionPedagogique, Ecole, Ecole_identific
 
 from django import forms
 from .models import Ecole
+from django.core.exceptions import ValidationError
+from .models import ACTIVITES_CHOICES,LocaliteRurale,Activite_APE
 
 class EcoleForm(forms.ModelForm):
     class Meta:
         model = Ecole
         fields = [
-            'nom', 'ouverte', 'accessible_toute_annee', 
-            'eau_disponible', 'type_eau', 'nb_postes_eau', 
+            'nom', 'info_ecole', 'accessible_toute_annee',
+            'eau_disponible', 'type_eau', 'nb_postes_eau',
             'electricite_disponible', 'nb_classes_electrifiees',
-            'cantine_fonctionnelle', 'nb_rationnaires', 
-            'source_financement', 'laves_mains_disponibles', 
-            'nb_laves_mains', 'domaine_cloture', 'type_cloture', 
-            'espace_recreation_disponible', 'superficie_recreation',
-            'jardin_scolaire', 'utilisation_jardin', 
-            'nb_latrines_filles', 'nb_latrines_garcons', 
-            'ape_existe', 'femmes_ape', 'hommes_ape', 'activites_ape', 
-            'comite_gestion_existe', 'femmes_comite', 'hommes_comite', 
-            'distance_centre_sante', 'campagnes_sante', 'boite_pharmacie_disponible'
+            'cantine_fonctionnelle', 'nb_rationnaires', 'nb_de_fille_beneficiaires', 'source_financement',
+            'laves_mains_disponibles', 'nb_laves_mains', 'domaine_cloture', 'superficie_cloture', 'type_cloture',
+            'espace_recreation_disponible', 'superficie_recreation', 'jardin_scolaire', 'utilisation_de_la_produit',
+            'nb_total_latrines', 'nb_latrines_filles', 'nb_latrines_garcons', 'nb_latrines_mixt',
+            'ape_existe', 'femmes_ape', 'hommes_ape', 'activites_ape', 'presidence_ape',
+            'comite_gestion_existe', 'femmes_comite', 'hommes_comite', 'presidence_comite',
+            'distance_centre_sante', 'apport_en_vitamine_A', 'boite_pharmacie_disponible',
+            'visite_médicale_année_dernière', 'campagne_de_déparasitage',
+            'campagne_de_sensibilisation_au_VIH', 'campagne_de_sensibilisation_au_palu', 'association_eleve'
         ]
         widgets = {
-            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'école'}),
-            'ouverte': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'info_ecole': forms.Select(attrs={'class': 'form-control'}),
             'accessible_toute_annee': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'eau_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'type_eau': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type d\'eau'}),
-            'nb_postes_eau': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de postes'}),
+            'type_eau': forms.Select(attrs={'class': 'form-control'}),
+            'nb_postes_eau': forms.NumberInput(attrs={'class': 'form-control'}),
             'electricite_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'nb_classes_electrifiees': forms.NumberInput(attrs={'class': 'form-control'}),
             'cantine_fonctionnelle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'nb_rationnaires': forms.NumberInput(attrs={'class': 'form-control'}),
-            'source_financement': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Source de financement'}),
+            'nb_de_fille_beneficiaires': forms.NumberInput(attrs={'class': 'form-control'}),
+            'source_financement': forms.Select(attrs={'class': 'form-control'}),
             'laves_mains_disponibles': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'nb_laves_mains': forms.NumberInput(attrs={'class': 'form-control'}),
             'domaine_cloture': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'type_cloture': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type de clôture'}),
+            'superficie_cloture': forms.NumberInput(attrs={'class': 'form-control'}),
+            'type_cloture': forms.Select(attrs={'class': 'form-control'}),
             'espace_recreation_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'superficie_recreation': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Superficie en m²'}),
+            'superficie_recreation': forms.NumberInput(attrs={'class': 'form-control'}),
             'jardin_scolaire': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'utilisation_jardin': forms.TextInput(attrs={'class': 'form-control'}),
+            'utilisation_de_la_produit': forms.Select(attrs={'class': 'form-control'}),
+            'nb_total_latrines': forms.NumberInput(attrs={'class': 'form-control'}),
             'nb_latrines_filles': forms.NumberInput(attrs={'class': 'form-control'}),
             'nb_latrines_garcons': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nb_latrines_mixt': forms.NumberInput(attrs={'class': 'form-control'}),
             'ape_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'femmes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
             'hommes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
-            'activites_ape': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'activites_ape': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'presidence_ape': forms.Select(attrs={'class': 'form-control'}),
             'comite_gestion_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'femmes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
             'hommes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'distance_centre_sante': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Distance en km'}),
-            'campagnes_sante': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'presidence_comite': forms.Select(attrs={'class': 'form-control'}),
+            'distance_centre_sante': forms.NumberInput(attrs={'class': 'form-control'}),
+            'apport_en_vitamine_A': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'boite_pharmacie_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'visite_médicale_année_dernière': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'campagne_de_déparasitage': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'campagne_de_sensibilisation_au_VIH': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'campagne_de_sensibilisation_au_palu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'association_eleve': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-        labels = {
-            'nom': 'Nom de l\'école',
-            'ouverte': 'École ouverte',
-            'accessible_toute_annee': 'Accessible toute l\'année',
-            'eau_disponible': 'Eau disponible',
-            'type_eau': 'Type d\'eau',
-            'nb_postes_eau': 'Nombre de postes d\'eau',
-            'electricite_disponible': 'Électricité disponible',
-            'nb_classes_electrifiees': 'Nombre de classes électrifiées',
-            'cantine_fonctionnelle': 'Cantine fonctionnelle',
-            'nb_rationnaires': 'Nombre de rationnaires',
-            'source_financement': 'Source de financement',
-            'laves_mains_disponibles': 'Laves-mains disponibles',
-            'nb_laves_mains': 'Nombre de laves-mains',
-            'domaine_cloture': 'Domaine clôturé',
-            'type_cloture': 'Type de clôture',
-            'espace_recreation_disponible': 'Espace de récréation disponible',
-            'superficie_recreation': 'Superficie de l\'espace de récréation',
-            'jardin_scolaire': 'Jardin scolaire',
-            'utilisation_jardin': 'Utilisation du jardin',
-            'nb_latrines_filles': 'Nombre de latrines pour filles',
-            'nb_latrines_garcons': 'Nombre de latrines pour garçons',
-            'ape_existe': 'APE existante',
-            'femmes_ape': 'Femmes dans l\'APE',
-            'hommes_ape': 'Hommes dans l\'APE',
-            'activites_ape': 'Activités de l\'APE',
-            'comite_gestion_existe': 'Comité de gestion existant',
-            'femmes_comite': 'Femmes dans le comité',
-            'hommes_comite': 'Hommes dans le comité',
-            'distance_centre_sante': 'Distance du centre de santé',
-            'campagnes_sante': 'Campagnes de sensibilisation',
-            'boite_pharmacie_disponible': 'Boîte à pharmacie disponible',
-        }
+
+    def clean_activites_ape(self):
+        activites = self.cleaned_data.get('activites_ape', [])
+        if len(activites) > 3:
+            raise forms.ValidationError("Vous ne pouvez sélectionner que trois activités.")
+        return activites
+
+    def clean(self):
+        cleaned_data = super().clean()
+        total_latrines = cleaned_data.get('nb_total_latrines', 0)
+        latrines_filles = cleaned_data.get('nb_latrines_filles', 0)
+        latrines_garcons = cleaned_data.get('nb_latrines_garcons', 0)
+        latrines_mixt = cleaned_data.get('nb_latrines_mixt', 0)
+
+        if (latrines_filles or latrines_garcons or latrines_mixt) and \
+                (latrines_filles + latrines_garcons + latrines_mixt > total_latrines):
+            self.add_error('nb_total_latrines', "La somme des latrines pour filles, garçons et mixtes ne peut pas dépasser le nombre total de latrines.")
+
+        return cleaned_data
 
 
 class EcoleIdentificationForm(forms.ModelForm):
@@ -130,25 +129,32 @@ class EcoleIdentificationForm(forms.ModelForm):
         if len(nom) > 100:
             raise forms.ValidationError("Le nom de l'école ne peut pas dépasser 100 caractères.")
         return nom
-
-
-
-
+    
+    
+    
 class LocaliteRuraleForm(forms.ModelForm):
     class Meta:
         model = LocaliteRurale
         fields = [
-            'type_acces', 'autre_acces', 'electricite_disponible', 
-            'type_eau', 'service_sante_disponible', 'type_service_sante', 
-            'mosquee_disponible', 'mahadra_disponible', 'bibliotheque_disponible', 
-            'terrain_sport_disponible', 'autres_structures_animation', 
-            'activites_dominantes', 'type_marche', 
-            'projets_developpement_existent', 'secteurs_intervention', 
+            'type_acces',
+            'electricite_disponible',
+            'type_eau',
+            'service_sante_disponible',
+            'type_service_sante',
+            'mosquee_disponible',
+            'mahadra_disponible',
+            'bibliotheque_disponible',
+            'terrain_sport_disponible',
+            'autres_structures_animation',
+            'activites_dominantes',
+            'type_marche',
+            'type_de_coperation',
+            'developpe_socio_économique',
+            'secteur_intervention',
             'bailleurs_ong'
         ]
         widgets = {
             'type_acces': forms.Select(attrs={'class': 'form-select'}),
-            'autre_acces': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Préciser si autre accès'}),
             'electricite_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'type_eau': forms.Select(attrs={'class': 'form-select'}),
             'service_sante_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -157,18 +163,25 @@ class LocaliteRuraleForm(forms.ModelForm):
             'mahadra_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'bibliotheque_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'terrain_sport_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'autres_structures_animation': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'activites_dominantes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Listez les activités économiques principales'}),
+            'autres_structures_animation': forms.Textarea(attrs={
+                'class': 'form-control', 'rows': 3,
+                'placeholder': 'Décrivez d’autres structures disponibles'
+            }),
+            'activites_dominantes': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+
             'type_marche': forms.Select(attrs={'class': 'form-select'}),
-            'projets_developpement_existent': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'secteurs_intervention': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Détails des secteurs d\'intervention'}),
-            'bailleurs_ong': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Nom des bailleurs ou ONG'}),
+            'type_de_coperation': forms.Select(attrs={'class': 'form-select'}),
+            'developpe_socio_économique': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'secteur_intervention': forms.Select(attrs={'class': 'form-select'}),
+            'bailleurs_ong': forms.Textarea(attrs={
+                'class': 'form-control', 'rows': 3,
+                'placeholder': 'Ajoutez des informations sur les bailleurs ou ONG'
+            }),
         }
         labels = {
             'type_acces': 'Type d\'accès',
-            'autre_acces': 'Autre accès',
             'electricite_disponible': 'Électricité disponible',
-            'type_eau': 'Type d\'eau disponible',
+            'type_eau': 'Type d\'eau',
             'service_sante_disponible': 'Service de santé disponible',
             'type_service_sante': 'Type de service de santé',
             'mosquee_disponible': 'Mosquée disponible',
@@ -178,10 +191,17 @@ class LocaliteRuraleForm(forms.ModelForm):
             'autres_structures_animation': 'Autres structures d\'animation',
             'activites_dominantes': 'Activités économiques dominantes',
             'type_marche': 'Type de marché',
-            'projets_developpement_existent': 'Projets de développement existants',
-            'secteurs_intervention': 'Secteurs d\'intervention',
-            'bailleurs_ong': 'Bailleurs ou ONG impliqués',
+            'type_de_coperation': 'Type de coopération',
+            'developpe_socio_économique': 'Développement socio-économique',
+            'secteur_intervention': 'Secteur d\'intervention',
+            'bailleurs_ong': 'Bailleurs ou ONG',
         }
+
+    def clean_activites_dominantes(self):
+        activites = self.cleaned_data.get('activites_dominantes')
+        if activites.count() > 3:
+            raise ValidationError("Vous ne pouvez sélectionner que trois activités économiques dominantes.")
+        return activites
 
 
 class LocalForm(forms.ModelForm):
