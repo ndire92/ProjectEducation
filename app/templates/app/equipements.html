@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <h2 class="text-primary fw-bold mb-4">📐 Gestion des Équipements Didactiques</h2>
     <form method="GET" class="d-flex mb-3">
-        <input type="text" name="q" class="form-control me-2" placeholder="Recherche par règles (>= nombre)..." value="{{ query }}">
+        <input type="text" name="q" class="form-control me-2" placeholder="" value="{{ query }}">
         <button type="submit" class="btn btn-primary">Rechercher</button>
     </form>
 
@@ -14,56 +14,69 @@
         <h4 class="text-primary fw-bold">
             {% if equipement %} Modifier l'Équipement {% else %} Ajouter un Équipement {% endif %}
         </h4>
-        <form method="post">
-            {% csrf_token %}
-            <div class="row">
-                {% for field in form %}
-                    <div class="col-md-4 col-sm-6 mb-3">
-                        <label class="fw-bold text-secondary">{{ field.label }}</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-muted"></span>
-                            {{ field }}
-                        </div>
-                    </div>
-                {% endfor %}
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h2>Ajouter un Équipement</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ equipement_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-success w-100 fw-bold">Enregistrer</button>
-        </form>
+
+            <!-- Formulaire pour la Dotation -->
+            <div class="col-md-6">
+                <h2>Dotation des Élèves</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ dotation_form.as_p }}
+                    <button type="submit" class="btn btn-success">Enregistrer Dotation</button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Règles</th>
-                <th>Rapporteurs</th>
-                <th>Cartes</th>
-                <th>Bon État</th>
-                <th>Mauvais État</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for equipement in equipements %}
-            <tr>
-                <td>{{ equipement.regles }}</td>
-                <td>{{ equipement.rapporteurs }}</td>
-                <td>{{ equipement.cartes }}</td>
-                <td>{{ equipement.bon_etat }}</td>
-                <td>{{ equipement.mauvais_etat }}</td>
-                <td>
-                    <a href="{% url 'gestion_equipements' equipement.id %}" class="btn btn-warning btn-sm">Modifier</a>
-                    <form method="POST" action="{% url 'supprimer_equipement' equipement.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        
-                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="6" class="text-center">Aucun équipement trouvé.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="mt-5">
+        <h2>Liste des Équipements Didactiques</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom</th>
+                    <th>Quantité</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipement in equipements %}
+                <tr>
+                    <td>{{ equipement.nom }}</td>
+                    <td>{{ equipement.quantite }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center">Aucun équipement enregistré.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tableau de la Dotation -->
+    <div class="mt-5">
+        <h2>Nombre d'Élèves Dotés</h2>
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre d'Élèves</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ dotation.nombre_eleves_dotes }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </div>
 </div>
 {% endblock %}

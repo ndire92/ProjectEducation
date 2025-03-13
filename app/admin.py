@@ -67,9 +67,8 @@ class MobilierEleveAdmin(admin.ModelAdmin):
 # Modèle EquipementDidactique
 @admin.register(EquipementDidactique)
 class EquipementDidactiqueAdmin(admin.ModelAdmin):
-    list_display = ('regles', 'rapporteurs', 'cartes', 'bon_etat', 'mauvais_etat')
-    search_fields = ('regles', 'rapporteurs', 'cartes')
-    list_filter = ('bon_etat', 'mauvais_etat')
+    list_display = ['nom', 'quantite']  # Utilisez des champs existants du modèle
+    list_filter = ['nom']
 
 # Modèle GuideEtManuel
 @admin.register(GuideEtManuel)
@@ -81,16 +80,28 @@ class GuideEtManuelAdmin(admin.ModelAdmin):
 # Modèle Personnel
 @admin.register(Personnel)
 class PersonnelAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'fonction', 'genre', 'age', 'niveau_formation', 'formation_continue')
-    search_fields = ('nom', 'fonction')
-    list_filter = ('genre', 'formation_continue')
+    list_display = ('numero_ordre', 'matricule_solde', 'genre', 'statut', 'fonction', 'present_ecole')
+    list_filter = ('genre', 'statut', 'fonction', 'present_ecole')
+    search_fields = ('matricule_solde', 'numero_ordre')
 
 # Modèle NouveauxInscrits
 @admin.register(NouveauxInscrits)
 class NouveauxInscritsAdmin(admin.ModelAdmin):
     list_display = ('situation_prescolaire', 'nombre_garcons', 'nombre_filles', 'total_inscrits')
-    search_fields = ('situation_prescolaire',)
-    list_filter = ('situation_prescolaire',)
+
+    def nombre_garcons(self, obj):
+        return obj.garcons  # Retourne la valeur du champ "garcons"
+
+    def nombre_filles(self, obj):
+        return obj.filles  # Retourne la valeur du champ "filles"
+
+    def total_inscrits(self, obj):
+        return obj.total_inscrits()  # Utilise la méthode `total_inscrits` du modèle
+
+    # Optionnel : Ajoutez des titres conviviaux
+    nombre_garcons.short_description = 'Garçons'
+    nombre_filles.short_description = 'Filles'
+    total_inscrits.short_description = 'Total Inscrits'
 
 # Modèle DivisionPedagogique
 @admin.register(DivisionPedagogique)

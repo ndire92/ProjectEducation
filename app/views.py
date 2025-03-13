@@ -1,14 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import logout
 from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
 from django.db.models import Count  # Ajoutez cet import
 
 
 
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Ecole, Ecole_identification
-from .forms import EcoleForm, EcoleIdentificationForm
+from .models import DotationEleve, Ecole, Ecole_identification, GuideEtManuel
+from .forms import DotationEleveForm, EcoleForm, EcoleIdentificationForm
 from .models import LocaliteRurale
 from .forms import LocaliteRuraleForm
 from django.shortcuts import render, get_object_or_404, redirect
@@ -20,7 +21,6 @@ from .models import MobilierCollectif, MobilierEleve
 from .forms import MobilierCollectifForm, MobilierEleveForm
 from .models import EquipementDidactique
 from .forms import EquipementDidactiqueForm
-from .models import GuideEtManuel
 from .models import Personnel
 from .forms import PersonnelForm
 from .models import NouveauxInscrits
@@ -281,34 +281,34 @@ def supprimer_local(request, pk):
 
     return render(request, 'app/local_delete.html', {'local': local})
 
-
-
-
+    
 def gestion_equipements(request, pk=None):
-    equipement = get_object_or_404(EquipementDidactique, pk=pk) if pk else None
+    # Formulaires
+    equipement_form = EquipementDidactiqueForm(request.POST or None)
+    dotation_form = DotationEleveForm(request.POST or None)
 
-    # Filtrage par recherche
-    query = request.GET.get('q', '')
-    if query:
-        equipements = EquipementDidactique.objects.filter(regles__gte=int(query))
-    else:
-        equipements = EquipementDidactique.objects.all()
+    # Traitement des formulaires
+    if request.method == 'POST':
+        if equipement_form.is_valid():
+            equipement_form.save()
+            return redirect('equipements_didactiques')  # Recharge la page
+        if dotation_form.is_valid():
+            dotation_form.save()
+            return redirect('equipements_didactiques')
 
-    if request.method == "POST":
-        form = EquipementDidactiqueForm(request.POST, instance=equipement)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Équipement didactique enregistré avec succès !")
-            return redirect('gestion_equipements')
-    else:
-        form = EquipementDidactiqueForm(instance=equipement)
+    # Récupérer les données existantes
+    equipements = EquipementDidactique.objects.all()
+    dotation = DotationEleve.objects.first()
 
-    return render(request, 'app/equipements.html', {
-        'form': form,
+    context = {
+        'equipement_form': equipement_form,
+        'dotation_form': dotation_form,
         'equipements': equipements,
-        'equipement': equipement,
-        'query': query
-    })
+        'dotation': dotation,
+    }
+    return render(request, 'app/equipements.html',context)
+
+
 
 def supprimer_equipement(request, pk):
     equipement = get_object_or_404(EquipementDidactique, pk=pk)
@@ -349,6 +349,8 @@ def gestion_guides(request, pk=None):
         'guide': guide,
         'query': query
     })
+
+
 
 def supprimer_guide(request, pk):
     guide = get_object_or_404(GuideEtManuel, pk=pk)
@@ -402,27 +404,40 @@ def supprimer_personnel(request, pk):
 def gestion_inscriptions(request, pk=None):
     inscription = get_object_or_404(NouveauxInscrits, pk=pk) if pk else None
 
-    # Filtrage par recherche
+    # Recherche par filtre
     query = request.GET.get('q', '')
-    if query:
-        inscriptions = NouveauxInscrits.objects.filter(situation_prescolaire__icontains=query)
-    else:
-        inscriptions = NouveauxInscrits.objects.all()
+    inscriptions = NouveauxInscrits.objects.filter(situation_prescolaire__icontains=query) if query else NouveauxInscrits.objects.all()
 
+    # Pagination
+    paginator = Paginator(inscriptions, 10)  # Afficher 10 inscriptions par page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Calculs des totaux
+    total_garcons = sum(inscrit.garcons for inscrit in inscriptions)
+    total_filles = sum(inscrit.filles for inscrit in inscriptions)
+    total_general = total_garcons + total_filles
+
+    # Formulaire pour ajout/mise à jour
     if request.method == "POST":
         form = NouveauxInscritsForm(request.POST, instance=inscription)
         if form.is_valid():
             form.save()
             messages.success(request, "Nouvelle inscription enregistrée avec succès !")
             return redirect('gestion_inscriptions')
+        else:
+            messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
         form = NouveauxInscritsForm(instance=inscription)
 
     return render(request, 'app/inscriptions.html', {
         'form': form,
-        'inscriptions': inscriptions,
+        'page_obj': page_obj,
         'inscription': inscription,
-        'query': query
+        'query': query,
+        'total_garcons': total_garcons,
+        'total_filles': total_filles,
+        'total_general': total_general,
     })
 
 def supprimer_inscription(request, pk):

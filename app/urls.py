@@ -40,8 +40,8 @@ urlpatterns = [
     path('mobilier/supprimer/<int:pk>/', supprimer_mobilier, name='supprimer_mobilier'),
 
     # Gestion des équipements
-    path('equipements/', gestion_equipements, name='gestion_equipements'),
-    path('equipements/<int:pk>/', gestion_equipements, name='gestion_equipements'),
+    path('equipements/', gestion_equipements, name='equipements_didactiques'),
+    path('equipements/<int:pk>/', gestion_equipements, name='equipements_didactiques'),
     path('equipements/supprimer/<int:pk>/', supprimer_equipement, name='supprimer_equipement'),
 
     # Gestion des guides

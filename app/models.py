@@ -22,8 +22,8 @@ class CustomUser(AbstractUser):
 
 
 class Ecole_identification(models.Model):
-    ancien_code = models.IntegerField(max_length=50, null=True, blank=True)  # Ancien code de l'école
-    nouveau_code = models.IntegerField(max_length=50, null=True, blank=True)  # Nouveau code de l'école
+    ancien_code  = models.CharField(max_length=16, null=True, blank=True)  # Ancien nom de l'école  # Ancien code de l'école
+    nouveau_code = models.CharField(max_length=16, null=True, blank=True)  # Nouveau code de l'école
     nom = models.CharField(max_length=200)  # Nom de l'école
     ancien_nom = models.CharField(max_length=200, null=True, blank=True)  # Ancien nom de l'école
     date_creation = models.DateField(null=True, blank=True)  # Date de création de l'école
@@ -52,8 +52,7 @@ class Ecole_identification(models.Model):
         ('rurale', 'Rurale'),
         ('urbaine', 'Urbaine')
     ], null=True, blank=True)  # Zone de localisation (Rurale/Urbaine)
-    
-    
+   
     def __str__(self):
         return self.nom
 
@@ -470,26 +469,20 @@ class MobilierEleve(models.Model):
 
 class EquipementDidactique(models.Model):
     # Équipements collectifs
-    regles = models.IntegerField(null=True, blank=True)  # Nombre de règles
-    rapporteurs = models.IntegerField(null=True, blank=True)  # Nombre de rapporteurs
-    cartes = models.IntegerField(null=True, blank=True)  # Nombre de cartes
-    bandes_dessinees = models.IntegerField(null=True, blank=True)  # Nombre de bandes dessinées
-    planches = models.IntegerField(null=True, blank=True)  # Nombre de planches
-    compas = models.IntegerField(null=True, blank=True)  # Nombre de compas
-    equerres = models.IntegerField(null=True, blank=True)  # Nombre d'équerres
-    globes = models.IntegerField(null=True, blank=True)  # Nombre de globes terrestres
-    litres = models.IntegerField(null=True, blank=True)  # Nombre d'objets pour les mesures (litres)
 
-    # État du matériel collectif
-    bon_etat = models.IntegerField(null=True, blank=True)  # Nombre en bon état
-    mauvais_etat = models.IntegerField(null=True, blank=True)  # Nombre en mauvais état
-
-    # Dotation scolaire des élèves
-    eleves_dotes = models.IntegerField(null=True, blank=True)  # Nombre d'élèves dotés cette année (sac, cahiers, etc.)
+    nom = models.CharField(max_length=100)  # Exemple : Règle, Rapporteur
+    quantite = models.PositiveIntegerField(default=0)  # Quantité disponible
 
     def __str__(self):
-        return f"Équipements didactiques - ID {self.id}"
+        return f"{self.nom} - {self.quantite}"
 
+
+class DotationEleve(models.Model):
+    nombre_eleves_dotes = models.PositiveIntegerField(default=0)  # Nombre d'élèves ayant reçu des matériels
+
+    def __str__(self):
+        return f"Élèves dotés : {self.nombre_eleves_dotes}"
+    
 class GuideEtManuel(models.Model):
     # Niveaux scolaires
     niveau = models.CharField(max_length=10, choices=[
@@ -521,29 +514,91 @@ class GuideEtManuel(models.Model):
 #---------------------------------------------informations relatives au personnel---------------------------
 
 
+
 class Personnel(models.Model):
-    nom = models.CharField(max_length=200)  # Nom de la personne
-    genre = models.CharField(max_length=1, choices=[('H', 'Homme'), ('F', 'Femme')])  # Genre
-    age = models.IntegerField(null=True, blank=True)  # Âge
-    fonction = models.CharField(max_length=200)  # Fonction (par exemple : enseignant, directeur)
-    
-    # Formation
-    niveau_formation = models.CharField(max_length=200, null=True, blank=True)  # Niveau de formation
-    formation_continue = models.BooleanField(default=False)  # A participé à une formation continue
-    
+    numero_ordre = models.IntegerField("N° ordre du fonctionnaire")
+    matricule_solde = models.CharField("Matricule/solde", max_length=50)
+    genre = models.CharField("Genre", max_length=1, choices=[('H', 'Homme'), ('F', 'Femme')])
+    annee_naissance = models.IntegerField("Année de naissance")
+    annee_recrutement = models.IntegerField("Année de recrutement")
+    annee_arrivee_ecole = models.IntegerField("Année d'arrivée à l'école")
+    statut = models.CharField("Statut", max_length=50, choices=[
+        ('Instituteur adjoint', 'Instituteur adjoint'),
+        ('Instituteur', 'Instituteur'),
+        ('Moniteur', 'Moniteur'),
+        ('Contractuel', 'Contractuel'),
+        ('Stagiaire', 'Stagiaire'),
+        ('Autre', 'Autre'),
+    ])
+    fonction = models.CharField("Fonction", max_length=50, choices=[
+        ('Directeur', 'Directeur'),
+        ('Enseignant classe', 'Enseignant classe'),
+        ('Suppléant', 'Suppléant'),
+        ('Personnel d\'appui', 'Personnel d\'appui'),
+        ('ENI-Normal', 'ENI-Normal'),
+        ('ENI-Adaptée', 'ENI-Adaptée'),
+        ('Autres', 'Autres'),
+    ])
+    formation_initiale = models.CharField("Formation professionnelle", max_length=20, choices=[
+        ('normal', 'ENI-Normal'),
+        ('accéléré', ' ENI- Accéléré'),
+        ('autres', 'Autres'),
+        ('sans', 'Sans'),
+    ])
+    formation_continue =  models.CharField("Formation continue", max_length=20, choices=[
+        ('Multigrade', 'Multigrade'),
+        (' Double-flux', 'Double-flux'),
+        ('APC', 'APC'),
+        ('langueFranc_ou_Arab','Langue (Franc ou Arab.)'),
+        (' gestion_pédagogique', 'Gestion pédagogique'),
+        ('Gestion_cantine', 'Gestion cantine'),
+        ('vih','VIH'),
+    ])
+    langue_formation = models.CharField("Langue de formation", max_length=20, choices=[
+        ('Arabe', 'Arabe'),
+        ('Français', 'Français'),
+    ])
+    langue_travail = models.CharField("Langue de travail", max_length=20, choices=[
+        ('Arabe', 'Arabe'),
+        ('Français', 'Français'),
+        ('Anglais', 'Anglais'),
+    ])
+    peut_enseigner = models.CharField("Peut enseigner en", max_length=20, choices=[
+        ('Arabe', 'Arabe'),
+        ('Français', 'Français'),
+        ('Anglais', 'Anglais'),
+    ])
+    nombre_inspections = models.IntegerField("Nombre d'inspections l'année passée")
+    present_ecole = models.BooleanField("Effectivement présent dans l'école", default=True)
+
     def __str__(self):
-        return f"{self.nom} - {self.fonction}"
+        return f"{self.numero_ordre} - {self.matricule_solde}"
+
 
 #---------------------------------répartition des nouveaux inscrits----------------------------
 
-class NouveauxInscrits(models.Model):
-    situation_prescolaire = models.CharField(max_length=100)  # Ex : Garderie, Jardins d'enfants, etc.
-    nombre_garcons = models.IntegerField()  # Nombre de garçons inscrits
-    nombre_filles = models.IntegerField()  # Nombre de filles inscrites
-    total_inscrits = models.IntegerField()  # Total des inscrits
 
-    def __str__(self):
-        return f"{self.situation_prescolaire} - Total : {self.total_inscrits}"
+
+class NouveauxInscrits(models.Model):
+    SITUATION_PRESCOLAIRE_CHOICES = [
+        ('garderie', 'Garderie'),
+        ('jardin_enfants', 'Jardins d\'enfants'),
+        ('ecole_coraniques', 'Ecoles coraniques'),
+        ('aucun_enseignement', 'Aucun enseignement'),
+        ('origine_non_connu', 'Origine non connue'),
+    ]
+
+    situation_prescolaire = models.CharField(
+        "Situation préscolaire",
+        max_length=50,
+        choices=SITUATION_PRESCOLAIRE_CHOICES
+    )
+    garcons = models.IntegerField("Garçons", default=0)
+    filles = models.IntegerField("Filles", default=0)
+
+    def total_inscrits(self):
+        """Calcule le total des inscrits (Garçons + Filles)."""
+        return self.garcons + self.filles
 
 
 #-----------------------------RÉPARTITION DES ÉLEVES PAR DIVISION PÉDAGOGIQUE----------------------------------

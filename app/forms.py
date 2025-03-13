@@ -1,5 +1,5 @@
 from django import forms
-from .models import AireRecrutement, DivisionPedagogique, Ecole, Ecole_identification, EquipementDidactique, FinancesEcole, GuideEtManuel, Local, LocaliteRurale, MobilierCollectif, MobilierEleve,MobiliteEleves, NouveauxInscrits, ObservationEventuelle, Personnel, SignatureEtCachet, StatistiqueGenerale, StructurePedagogique
+from .models import AireRecrutement, DivisionPedagogique, DotationEleve, Ecole, Ecole_identification, EquipementDidactique, FinancesEcole, GuideEtManuel, Local, LocaliteRurale, MobilierCollectif, MobilierEleve,MobiliteEleves, NouveauxInscrits, ObservationEventuelle, Personnel, SignatureEtCachet, StatistiqueGenerale, StructurePedagogique
 
 from django import forms
 from .models import Ecole
@@ -179,6 +179,7 @@ class EcoleIdentificationForm(forms.ModelForm):
     
     
     
+    
 class LocaliteRuraleForm(forms.ModelForm):
     class Meta:
         model = LocaliteRurale
@@ -324,40 +325,20 @@ from .models import EquipementDidactique
 class EquipementDidactiqueForm(forms.ModelForm):
     class Meta:
         model = EquipementDidactique
-        fields = [
-            'regles', 'rapporteurs', 'cartes', 'bandes_dessinees', 'planches',
-            'compas', 'equerres', 'globes', 'litres', 'bon_etat',
-            'mauvais_etat', 'eleves_dotes'
-        ]
+        fields = ['nom', 'quantite']
         widgets = {
-            'regles': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de règles'}),
-            'rapporteurs': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de rapporteurs'}),
-            'cartes': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de cartes'}),
-            'bandes_dessinees': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de bandes dessinées'}),
-            'planches': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de planches'}),
-            'compas': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de compas'}),
-            'equerres': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre d\'équerres'}),
-            'globes': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de globes terrestres'}),
-            'litres': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de litres'}),
-            'bon_etat': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre en bon état'}),
-            'mauvais_etat': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre en mauvais état'}),
-            'eleves_dotes': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre d\'élèves dotés'}),
-        }
-        labels = {
-            'regles': 'Règles',
-            'rapporteurs': 'Rapporteurs',
-            'cartes': 'Cartes',
-            'bandes_dessinees': 'Bandes dessinées',
-            'planches': 'Planches',
-            'compas': 'Compas',
-            'equerres': 'Équerres',
-            'globes': 'Globes terrestres',
-            'litres': 'Objets pour les mesures (litres)',
-            'bon_etat': 'Équipements en bon état',
-            'mauvais_etat': 'Équipements en mauvais état',
-            'eleves_dotes': 'Élèves dotés',
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Règle'}),
+            'quantite': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Entrez la quantité'}),
         }
 
+
+class DotationEleveForm(forms.ModelForm):
+    class Meta:
+        model = DotationEleve
+        fields = ['nombre_eleves_dotes']
+        widgets = {
+            'nombre_eleves_dotes': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre d\'élèves dotés'}),
+        }
 
 from django import forms
 from .models import GuideEtManuel
@@ -386,48 +367,102 @@ class GuideEtManuelForm(forms.ModelForm):
 class PersonnelForm(forms.ModelForm):
     class Meta:
         model = Personnel
-        fields = [
-            'nom', 'genre', 'age', 'fonction', 
-            'niveau_formation', 'formation_continue'
-        ]
+        fields = '__all__'  # Inclut tous les champs du modèle
         widgets = {
-            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom complet'}),
+            'numero_ordre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'N° ordre'}),
+            'matricule_solde': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Matricule/solde'}),
             'genre': forms.Select(attrs={'class': 'form-select'}),
-            'age': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Âge'}),
-            'fonction': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fonction (Ex : enseignant, directeur)'}),
-            'niveau_formation': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Niveau de formation'}),
-            'formation_continue': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'annee_naissance': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Année de naissance'}),
+            'annee_recrutement': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Année de recrutement'}),
+            'annee_arrivee_ecole': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Année d\'arrivée à l\'école'}),
+            'statut': forms.Select(attrs={'class': 'form-select'}),
+            'fonction': forms.Select(attrs={'class': 'form-select'}),
+            'formation_initiale': forms.Select(attrs={'class': 'form-select'}),
+            'formation_continue': forms.Select(attrs={'class': 'form-select'}),
+            'langue_formation': forms.Select(attrs={'class': 'form-select'}),
+            'langue_travail': forms.Select(attrs={'class': 'form-select'}),
+            'peut_enseigner': forms.Select(attrs={'class': 'form-select'}),
+            'nombre_inspections': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre d\'inspections'}),
+            'present_ecole': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
-            'nom': 'Nom',
+            'numero_ordre': 'N° ordre',
+            'matricule_solde': 'Matricule/solde',
             'genre': 'Genre',
-            'age': 'Âge',
+            'annee_naissance': 'Année de naissance',
+            'annee_recrutement': 'Année de recrutement',
+            'annee_arrivee_ecole': 'Année d\'arrivée à l\'école',
+            'statut': 'Statut',
             'fonction': 'Fonction',
-            'niveau_formation': 'Niveau de Formation',
-            'formation_continue': 'Formation Continue',
+            'formation_initiale': 'Formation professionnelle',
+            'formation_continue': 'Formation continue',
+            'langue_formation': 'Langue de formation',
+            'langue_travail': 'Langue de travail',
+            'peut_enseigner': 'Peut enseigner en',
+            'nombre_inspections': 'Nombre d\'inspections l\'année passée',
+            'present_ecole': 'Présent à l\'école',
         }
 
+    def clean_annee_naissance(self):
+        annee = self.cleaned_data.get('annee_naissance')
+        if annee and annee > 2025:  # Par exemple, empêcher une date future
+            raise forms.ValidationError("L'année de naissance doit être valide.")
+        return annee
 
-from django import forms
-from .models import NouveauxInscrits
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get('annee_recrutement') and cleaned_data.get('annee_naissance'):
+            age_a_recrutement = cleaned_data['annee_recrutement'] - cleaned_data['annee_naissance']
+            if age_a_recrutement < 18:
+                raise forms.ValidationError("L'âge au recrutement doit être d'au moins 18 ans.")
+        return cleaned_data
+
+
 
 class NouveauxInscritsForm(forms.ModelForm):
     class Meta:
         model = NouveauxInscrits
-        fields = ['situation_prescolaire', 'nombre_garcons', 'nombre_filles', 'total_inscrits']
+        fields = ['situation_prescolaire', 'garcons', 'filles']
         widgets = {
-            'situation_prescolaire': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : Garderie, Jardin d\'enfants'}),
-            'nombre_garcons': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de garçons'}),
-            'nombre_filles': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de filles'}),
-            'total_inscrits': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'placeholder': 'Calculé automatiquement'}),
+            'situation_prescolaire': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'Sélectionnez une situation préscolaire'
+            }),
+            'garcons': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre de garçons'
+            }),
+            'filles': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre de filles'
+            }),
         }
         labels = {
-            'situation_prescolaire': 'Situation Préscolaire',
-            'nombre_garcons': 'Nombre de Garçons',
-            'nombre_filles': 'Nombre de Filles',
-            'total_inscrits': 'Total des Inscrits',
+            'situation_prescolaire': 'Situation préscolaire',
+            'garcons': 'Garçons',
+            'filles': 'Filles',
         }
 
+    def clean_garcons(self):
+        garcons = self.cleaned_data.get('garcons')
+        if garcons < 0:
+            raise forms.ValidationError("Le nombre de garçons ne peut pas être négatif.")
+        return garcons
+
+    def clean_filles(self):
+        filles = self.cleaned_data.get('filles')
+        if filles < 0:
+            raise forms.ValidationError("Le nombre de filles ne peut pas être négatif.")
+        return filles
+
+    def clean(self):
+        cleaned_data = super().clean()
+        garcons = cleaned_data.get('garcons', 0)
+        filles = cleaned_data.get('filles', 0)
+
+        if garcons + filles == 0:
+            raise forms.ValidationError("Le total des inscrits doit être supérieur à zéro.")
+        return cleaned_data
 
 from django import forms
 from .models import DivisionPedagogique
