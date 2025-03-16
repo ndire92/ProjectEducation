@@ -26,36 +26,43 @@
     </div>
 
     <!-- Liste des Observations -->
-    <div class="card p-4 shadow-lg">
-        <h4 class="text-primary fw-bold mb-3">📋 Liste des Observations</h4>
-        <table class="table table-striped table-hover">
+    <div class="container mt-5">
+        <h2>Tableau des Formulaires</h2>
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Contenu</th>
-                    <th>Date</th>
-                    <th>Actions</th>
+                    <th>#</th>
+                    <th>Nom du Directeur</th>
+                    <th>Date (Directeur)</th>
+                    <th>Signature (Directeur)</th>
+                    <th>Date (Inspection)</th>
+                    <th>Signature (Inspection)</th>
+                    <th>Date (Direction)</th>
+                    <th>Signature (Direction)</th>
+                    <th>Observations</th>
                 </tr>
             </thead>
             <tbody>
-                {% for obs in observations %}
+                {% for formulaire in observations %}
                 <tr>
-                    <td>{{ obs.contenu }}</td>
-                    <td>{{ obs.date_creation }}</td>
-                    <td>
-                        <a href="{% url 'gestion_observations' obs.id %}" class="btn btn-warning btn-sm">Modifier</a>
-                        <form method="POST" action="{% url 'supprimer_observation' obs.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                        </form>
-                    </td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ formulaire.directeur_nom }}</td>
+                    <td>{{ formulaire.directeur_date }}</td>
+                    <td>{{ formulaire.directeur_signature }}</td>
+                    <td>{{ formulaire.inspection_date }}</td>
+                    <td>{{ formulaire.inspection_signature }}</td>
+                    <td>{{ formulaire.direction_date }}</td>
+                    <td>{{ formulaire.direction_signature }}</td>
+                    <td>{{ formulaire.observations }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3" class="text-center">Aucune observation trouvée.</td>
+                    <td colspan="9" class="text-center">Aucun formulaire disponible.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
     </div>
 </div>
 {% endblock %}

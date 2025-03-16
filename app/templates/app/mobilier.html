@@ -6,38 +6,39 @@
     {% include 'include/sidebar.html' %}
 
     <!-- Contenu principal -->
-
     <div class="container mt-5">
-        <h1 class="text-center">Gestion des Locaux et Mobiliers</h1>
+        <h1 class="text-center text-primary fw-bold">Gestion des Locaux et Mobiliers</h1>
 
         <!-- Formulaires -->
         <div class="row mt-4">
-    
             <div class="col-md-6">
-                <h2>Ajouter un Mobilier Collectif</h2>
-                <form method="post">
+                <h2 class="text-secondary fw-bold">Ajouter un Mobilier Collectif</h2>
+                <form method="post" class="shadow p-4 rounded-3 bg-light">
                     {% csrf_token %}
                     {{ mobilier_collectif_form.as_p }}
-                    <button type="submit" class="btn btn-success">Enregistrer Mobilier Collectif</button>
+                    <button type="submit" class="btn btn-success w-100 fw-bold">
+                        ✅ Enregistrer Mobilier Collectif
+                    </button>
                 </form>
             </div>
 
             <div class="col-md-6">
-                <h2>Ajouter un Mobilier Élève</h2>
-                <form method="post">
+                <h2 class="text-secondary fw-bold">Ajouter un Mobilier Élève</h2>
+                <form method="post" class="shadow p-4 rounded-3 bg-light">
                     {% csrf_token %}
                     {{ mobilier_eleve_form.as_p }}
-                    <button type="submit" class="btn btn-warning">Enregistrer Mobilier Élève</button>
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">
+                        ✅ Enregistrer Mobilier Élève
+                    </button>
                 </form>
             </div>
-        
+        </div>
 
         <!-- Tableaux -->
         <div class="mt-5">
-            
-            <h2 class="mt-5">Liste des Mobiliers Collectifs</h2>
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
+            <h2 class="mt-5 text-primary fw-bold">Liste des Mobiliers Collectifs</h2>
+            <table class="table table-bordered table-striped shadow-sm">
+                <thead class="table-primary">
                     <tr>
                         <th>Nom</th>
                         <th>État</th>
@@ -53,15 +54,15 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="text-center">Aucun mobilier collectif trouvé.</td>
+                        <td colspan="3" class="text-center">⛔ Aucun mobilier collectif trouvé.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
-            <h2 class="mt-5">Liste des Mobiliers Élèves</h2>
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
+            <h2 class="mt-5 text-primary fw-bold">Liste des Mobiliers Élèves</h2>
+            <table class="table table-bordered table-striped shadow-sm">
+                <thead class="table-primary">
                     <tr>
                         <th>Type de Table-Banc</th>
                         <th>État</th>
@@ -77,7 +78,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="3" class="text-center">Aucun mobilier élève trouvé.</td>
+                        <td colspan="3" class="text-center">⛔ Aucun mobilier élève trouvé.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

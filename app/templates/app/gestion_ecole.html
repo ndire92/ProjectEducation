@@ -77,7 +77,7 @@
                         </div>
                     </div>
                 {% endfor %}
-            </div>
+                
             <button type="submit" class="btn btn-primary">Envoyer</button>
         </form>
     </div>
@@ -219,5 +219,23 @@
             </table>
         </div>
     </div>
-
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function updateTotal() {
+                let filles = parseInt(document.getElementById("id_nb_latrines_filles").value) || 0;
+                let garcons = parseInt(document.getElementById("id_nb_latrines_garcons").value) || 0;
+                let mixt = parseInt(document.getElementById("id_nb_latrines_mixt").value) || 0;
+        
+                let total = filles + garcons + mixt;
+        
+                document.getElementById("id_nb_total_latrines").value = total;
+                document.getElementById("total_display").textContent = total;
+            }
+        
+            // Écouteurs d'événements pour recalculer le total quand on change un champ
+            document.getElementById("id_nb_latrines_filles").addEventListener("input", updateTotal);
+            document.getElementById("id_nb_latrines_garcons").addEventListener("input", updateTotal);
+            document.getElementById("id_nb_latrines_mixt").addEventListener("input", updateTotal);
+        });
+        </script>
 {% endblock %}

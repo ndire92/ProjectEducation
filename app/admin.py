@@ -1,10 +1,12 @@
 from django.contrib import admin
+
+
 from .models import (
-    Activite, Activite_APE, Affec, CustomUser, Do, Ecole_identification, EtatFenetre, EtatMur, EtatPorte, EtatSol, EtatToit, LocaliteRurale, Ecole, Local
-    , EquipementDidactique, GuideEtManuel, NatureMur, NatureSol, NatureToit, Personnel, 
-    NouveauxInscrits, DivisionPedagogique, AireRecrutement, SourceFinancement, StatistiqueGenerale, 
-    MobiliteEleves, StructurePedagogique, FinancesEcole, ObservationEventuelle, 
-    SignatureEtCachet,MobilierCollectif, MobilierEleve,
+    Activite, Activite_APE, Contributions, CustomUser, Ecole_identification,LocaliteRurale, Ecole, Local
+    , EquipementDidactique, GuideEtManuel,Personnel, 
+    NouveauxInscrits, DivisionPedagogique, AireRecrutement, Source_F, StatistiqueGenerale, 
+    MobiliteEleves, StructurePedagogique,ObservationEventuelle, 
+    MobilierCollectif,DonneeFinanciere
 )
 
 
@@ -44,26 +46,48 @@ class EcoleAdmin(admin.ModelAdmin):
     # Définir les filtres à afficher dans la barre latérale
     list_filter = ('info_ecole', 'accessible_toute_annee', 'eau_disponible', 'electricite_disponible')
 
-# Modèle Local
-class LocalAdmin(admin.ModelAdmin):
-    list_display = ['numero', 'get_affectations', 'annee_mise_en_service', 'surface']
-    
-    def get_affectations(self, obj):
-        return ", ".join([affectation.nom for affectation in obj.Affectation_du_local.all()])
-    
-    get_affectations.short_description = "Affectation"
-
-admin.site.register(Local, LocalAdmin)
-
-# Modèle MobilierEtEquipements
-
+#
 @admin.register(MobilierCollectif)
 class MobilierCollectifAdmin(admin.ModelAdmin):
     list_display = ['nom', 'etat', 'nombre']
 
-@admin.register(MobilierEleve)
-class MobilierEleveAdmin(admin.ModelAdmin):
-    list_display = ['type_table_banc', 'etat', 'nombre']
+admin.site.register(Local)
+
+@admin.register(MobiliteEleves)
+class MobiliteElevesAdmin(admin.ModelAdmin):
+    # Colonnes affichées
+    list_display = (
+        'etablissement', 'total_garcons', 'total_filles', 
+        'g_1a', 'f_1a', 'g_2a', 'f_2a', 'g_3a', 'f_3a',
+        'g_4a', 'f_4a', 'g_5a', 'f_5a', 'g_6a', 'f_6a'
+    )
+    
+    # Filtres latéraux
+    list_filter = ('etablissement',)
+    
+    # Recherche
+    search_fields = ('etablissement',)
+    
+    # Organisation des champs dans des sections
+    fieldsets = (
+        ('Informations sur l’établissement', {
+            'fields': ('etablissement',)
+        }),
+        ('Répartition des élèves', {
+            'fields': (
+                ('g_1a', 'f_1a'), ('g_2a', 'f_2a'), 
+                ('g_3a', 'f_3a'), ('g_4a', 'f_4a'),
+                ('g_5a', 'f_5a'), ('g_6a', 'f_6a')
+            )
+        }),
+        ('Totaux calculés', {
+            'fields': ('total_garcons', 'total_filles')
+        }),
+    )
+    
+    # Champs en lecture seule
+    readonly_fields = ('total_garcons', 'total_filles')
+
 # Modèle EquipementDidactique
 @admin.register(EquipementDidactique)
 class EquipementDidactiqueAdmin(admin.ModelAdmin):
@@ -106,16 +130,67 @@ class NouveauxInscritsAdmin(admin.ModelAdmin):
 # Modèle DivisionPedagogique
 @admin.register(DivisionPedagogique)
 class DivisionPedagogiqueAdmin(admin.ModelAdmin):
-    list_display = ('niveau', 'numero_salle', 'vacation', 'multigrade', 'double_flux', 'total_eleves')
-    search_fields = ('niveau', 'numero_salle')
-    list_filter = ('vacation', 'multigrade', 'double_flux')
+    list_display = (
+        'division_pedagogique', 'annee_etude', 'type_classe', 'numero_enseignant_arabe',
+        'numero_enseignant_francais', 'total_eleves', 'dont_redoublants', 'avant_2000_plus_14'
+    )
+    list_filter = ('type_classe', 'numero_enseignant_arabe', 'annee_etude')
+    search_fields = ('division_pedagogique', 'annee_etude', 'numero_enseignant_arabe')
+    ordering = ('division_pedagogique', 'annee_etude')
+
+    fieldsets = (
+        ('Informations de base', {
+            'fields': ('division_pedagogique', 'annee_etude', 'type_classe', 'numero_enseignant_arabe', 'numero_enseignant_francais')
+        }),
+        ('Répartition des âges', {
+            'fields': (
+                'apres_oct_2008_moins_6', 'oct_2008_6_ans', 'oct_2007_7_ans', 
+                'oct_2006_8_ans', 'oct_2005_9_ans', 'oct_2004_10_ans', 
+                'oct_2003_11_ans', 'oct_2002_12_ans', 'oct_2001_13_ans', 
+                'oct_2000_14_ans', 'avant_2000_plus_14'
+            )
+        }),
+        ('Statistiques supplémentaires', {
+            'fields': ('total_eleves', 'dont_redoublants', 'redoublants_avec_cef', 'numero_salle_classe')
+        }),
+    )
+    readonly_fields = ('total_eleves',)  # Champs calculés automatiquement, ne doivent pas être modifiables
+
 
 # Modèle AireRecrutement
 @admin.register(AireRecrutement)
 class AireRecrutementAdmin(admin.ModelAdmin):
-    list_display = ('localite', 'distance_km', 'total_eleves', 'redoublants_garcons', 'redoublants_filles')
+    # Colonnes affichées dans la liste
+    list_display = (
+        'localite', 'distance', 'total_garcons', 'total_filles',
+        'g_1a', 'f_1a', 'g_2a', 'f_2a', 'g_3a', 'f_3a',
+        'g_4a', 'f_4a', 'g_5a', 'f_5a', 'g_6a', 'f_6a'
+    )
+    
+    # Filtres sur le côté droit
+    list_filter = ('distance',)
+    
+    # Recherche dans les champs
     search_fields = ('localite',)
-    list_filter = ('distance_km',)
+    
+    # Organisation des champs dans des sections
+    fieldsets = (
+        ('Informations générales', {
+            'fields': ('localite', 'distance')
+        }),
+        ('Répartition des élèves', {
+            'fields': (
+                ('g_1a', 'f_1a'), ('g_2a', 'f_2a'), ('g_3a', 'f_3a'),
+                ('g_4a', 'f_4a'), ('g_5a', 'f_5a'), ('g_6a', 'f_6a')
+            )
+        }),
+        ('Totaux', {
+            'fields': ('total_garcons', 'total_filles')
+        }),
+    )
+    
+    # Champs en lecture seule
+    readonly_fields = ('total_garcons', 'total_filles')
 
 # Modèle StatistiqueGenerale
 @admin.register(StatistiqueGenerale)
@@ -125,55 +200,61 @@ class StatistiqueGeneraleAdmin(admin.ModelAdmin):
     list_filter = ('annee_scolaire',)
 
 
-# Modèle MobiliteEleves
-@admin.register(MobiliteEleves)
-class MobiliteElevesAdmin(admin.ModelAdmin):
-    list_display = ('nom_etablissement', 'localite_origine', 'pays_origine', 'statut_scolarisation', 
-                    'nombre_garcons', 'nombre_filles', 'total_redoublants', 'total_eleves')
-    search_fields = ('nom_etablissement', 'localite_origine', 'pays_origine')
-    list_filter = ('statut_scolarisation',)
+
 
 # Modèle StructurePedagogique
+
 @admin.register(StructurePedagogique)
 class StructurePedagogiqueAdmin(admin.ModelAdmin):
-    list_display = ('division', 'nombre_divisions', 'total_eleves', 
-                    'redoublants_garcons', 'redoublants_filles', 'multigrade', 'double_flux')
-    search_fields = ('division',)
-    list_filter = ('multigrade', 'double_flux')
+    list_display = (
+        'niveau',
+        'simples',
+        'multigrades',
+        'double_flux',
+        'get_divisions_total',
+        'inscrits_garcons',
+        'inscrits_filles',
+        'get_eleves_total',
+        'redoublants_garcons',
+        'redoublants_filles',
+        'get_redoublants_total'
+    )
 
-# Modèle FinancesEcole
-@admin.register(FinancesEcole)
-class FinancesEcoleAdmin(admin.ModelAdmin):
-    list_display = ('contributions_familles', 'autres_contributions', 'activites_generatrices_revenus', 
-                    'construction_batiments', 'renovation_batiments', 'achat_mobilier', 'salaires_personnel_enseignant')
-    search_fields = ('contributions_familles', 'autres_contributions')
-    list_filter = ('construction_batiments', 'renovation_batiments', 'achat_mobilier')
+    list_filter = ('niveau',)  # Exemple pour filtrer par niveaux
+
+    # Méthodes pour afficher les totaux calculés
+    @admin.display(description='Total Divisions')
+    def get_divisions_total(self, obj):
+        return obj.divisions_total
+
+    @admin.display(description='Total Inscrits')
+    def get_eleves_total(self, obj):
+        return obj.inscrits_total
+
+    @admin.display(description='Total Redoublants')
+    def get_redoublants_total(self, obj):
+        return obj.redoublants_total
+    
+    
+    
+
+
+admin.site.register(DonneeFinanciere)
+admin.site.register(Contributions)
+
+
 
 # Modèle ObservationEventuelle
 @admin.register(ObservationEventuelle)
 class ObservationEventuelleAdmin(admin.ModelAdmin):
-    list_display = ('contenu', 'date_creation')
-    search_fields = ('contenu',)
-    list_filter = ('date_creation',)
+    list_display = ('directeur_nom', 'directeur_date', 'inspection_date', 'direction_date')
+    list_filter = ('directeur_date', 'inspection_date', 'direction_date')
+    search_fields = ('directeur_nom',)
 
-# Modèle SignatureEtCachet
-@admin.register(SignatureEtCachet)
-class SignatureEtCachetAdmin(admin.ModelAdmin):
-    list_display = ('nom_signataire', 'fonction_signataire', 'date_signature', 'cachet_present')
-    search_fields = ('nom_signataire', 'fonction_signataire')
-    list_filter = ('fonction_signataire', 'cachet_present')
 
 admin.site.register(Activite)
 admin.site.register(Activite_APE)
-admin.site.register(Affec)
-admin.site.register(Do)
-admin.site.register(NatureMur)
-admin.site.register(EtatMur)
-admin.site.register(NatureToit)
-admin.site.register(EtatToit)
-admin.site.register(EtatSol)
-admin.site.register(NatureSol)
-admin.site.register(EtatPorte)
-admin.site.register(EtatFenetre)
 
-admin.site.register(SourceFinancement)
+
+admin.site.register(Source_F)
+

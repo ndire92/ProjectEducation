@@ -1,99 +1,221 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="container">
-    <!-- Section des cartes -->
-    <div class="row">
-        {% for ecole in ecoles_par_statut %}
-        <div class="col-lg-4 col-md-6 col-sm-12"> <!-- Adapté pour tous les écrans -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-primary">Statut : {{ ecole.ouverte }}</h5>
-                    <p class="card-text">Nombre d'écoles : {{ ecole.count }}</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Voir détails</a>
+{% block content %}<div class="d-flex">
+<body>
+    
+        <div class="container mt-5">
+            <h1 class="text-center text-primary fw-bold">Tableau de Bord des Écoles et Localités</h1>
+    
+            <!-- 1. Statistiques Globales -->
+            <section class="mt-4">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">Total des Écoles</h5>
+                                <p class="card-text">{{ total_ecoles }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-success">Total des Localités</h5>
+                                <p class="card-text">{{ total_localites }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-info">Écoles avec Électricité</h5>
+                                <p class="card-text">{{ localites_services.electricite }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- 2. Graphiques -->
+            <section class="mt-5">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-center">Répartition des Écoles par Statut</h5>
+                        <canvas id="statutChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-center">Localités par Type d'Accès</h5>
+                        <canvas id="accesChart" height="200"></canvas>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- 3. Tableaux Interactifs -->
+            <section class="mt-5">
+                <h3 class="text-center">Liste des Écoles</h3>
+                <table class="table table-hover table-bordered">
+                    <thead class="table-primary text-white">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Statut</th>
+                            <th>Zone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ecole in ecoles_par_statut %}
+                        <tr>
+                            <td>{{ ecole.nom }}</td>
+                            <td>{{ ecole.statut }}</td>
+                            <td>{{ ecole.zone }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+                    <!-- **Statistiques Globales** -->
+        <section class="mt-4">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Écoles Totales</h5>
+                            <p class="card-text">{{ total_ecoles }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">Écoles avec Eau</h5>
+                            <p class="card-text">{{ ecoles_eau }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-info">Écoles avec Électricité</h5>
+                            <p class="card-text">{{ ecoles_electricite }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <!-- **Graphiques** -->
+        <section class="mt-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-center">Répartition des Écoles par Statut</h5>
+                    <canvas id="chartStatutEcoles" height="200"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-center">Répartition des Locaux par Type de Mur</h5>
+                    <canvas id="chartTypeMur" height="200"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- **Tableaux** -->
+        <section class="mt-5">
+            <h3 class="text-center">Liste des Écoles</h3>
+            <table class="table table-hover table-bordered">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        <th>Nom</th>
+                        <th>Statut</th>
+                        <th>Accessible Toute l'Année</th>
+                        <th>Source d'Eau</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ecole in ecoles_par_statut %}
+                    <tr>
+                        <td>{{ ecole.nom }}</td>
+                        <td>{{ ecole.info_ecole }}</td>
+                        <td>{{ ecole.accessible_toute_annee|yesno:"Oui,Non" }}</td>
+                        <td>{{ ecole.type_eau }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
         </div>
-        {% endfor %}
-    </div>
-
-    <!-- Tableau des écoles -->
-    <div class="container mt-5">
-        <h3 class="text-center text-uppercase text-success">Tableau des Écoles</h3>
-        <table class="table table-hover table-bordered">
-            <thead class="bg-success text-white">
-                <tr>
-                    <th>Statut</th>
-                    <th>Nombre d'écoles</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ecole in ecoles_par_statut %}
-                <tr>
-                    <td>{{ ecole.ouverte }}</td>
-                    <td>{{ ecole.count }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    
+        <script>
+            // Répartition des écoles par statut
+            var ctx1 = document.getElementById('statutChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: ['Public', 'Privé'],
+                    datasets: [{
+                        data: [{% for ecole in ecoles_par_statut %}{{ ecole.count }}, {% endfor %}],
+                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)']
+                    }]
+                }
+            });
+    
+            // Répartition des localités par type d'accès
+            var ctx2 = document.getElementById('accesChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: [{% for acces in localites_par_acces %}'{{ acces.type_acces }}', {% endfor %}],
+                    datasets: [{
+                        label: 'Nombre de Localités',
+                        data: [{% for acces in localites_par_acces %}{{ acces.count }}, {% endfor %}],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+        <script>
+            // Répartition des écoles par statut
+            var ctx1 = document.getElementById('chartStatutEcoles').getContext('2d');
+            new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: ['Ouvertes', 'Veilleuses'],
+                    datasets: [{
+                        data: [{% for ecole in ecoles_par_statut %}{{ ecole.count }}, {% endfor %}],
+                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)']
+                    }]
+                }
+            });
+    
+            // Répartition des locaux par type de mur
+            var ctx2 = document.getElementById('chartTypeMur').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: [{% for mur in locaux_par_type_mur %}'{{ mur.nature_murs__nom }}', {% endfor %}],
+                    datasets: [{
+                        label: 'Nombre de Locaux',
+                        data: [{% for mur in locaux_par_type_mur %}{{ mur.count }}, {% endfor %}],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+</body>
 </div>
-
-<!-- Section graphique avec Chart.js -->
-<canvas id="statutChart" width="400" height="200" class="mt-5"></canvas>
-
-<script>
-    // Graphique interactif
-    var ctx = document.getElementById('statutChart').getContext('2d');
-    var statutChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [{% for statut in ecoles_par_statut %}'{{ statut.ouverte }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-            datasets: [{
-                label: 'Nombre d\'Écoles',
-                data: [{% for statut in ecoles_par_statut %}{{ statut.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 206, 86, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-</script>
-
-<style>
-    .card {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-    h3.text-center {
-        margin-top: 20px;
-        font-family: 'Arial', sans-serif;
-    }
-    table {
-        font-size: 0.9rem;
-    }
-</style>
 {% endblock %}

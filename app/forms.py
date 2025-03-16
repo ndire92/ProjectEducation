@@ -1,10 +1,11 @@
 from django import forms
-from .models import AireRecrutement, DivisionPedagogique, DotationEleve, Ecole, Ecole_identification, EquipementDidactique, FinancesEcole, GuideEtManuel, Local, LocaliteRurale, MobilierCollectif, MobilierEleve,MobiliteEleves, NouveauxInscrits, ObservationEventuelle, Personnel, SignatureEtCachet, StatistiqueGenerale, StructurePedagogique
+from .models import AireRecrutement,Contributions, DivisionPedagogique, DonneeFinanciere, DotationEleve, Ecole, Ecole_identification, EquipementDidactique, GuideEtManuel, Local, LocaliteRurale, MobilierCollectif, MobilierEleve,MobiliteEleves, NouveauxInscrits, ObservationEventuelle, Personnel, StatistiqueGenerale, StructurePedagogique
 
 from django import forms
 from .models import Ecole
 from django.core.exceptions import ValidationError
 from .models import ACTIVITES_CHOICES,LocaliteRurale,Activite_APE
+
 class EcoleForm(forms.ModelForm):
     class Meta:
         model = Ecole
@@ -12,62 +13,64 @@ class EcoleForm(forms.ModelForm):
             'nom', 'info_ecole', 'accessible_toute_annee',
             'eau_disponible', 'type_eau', 'nb_postes_eau',
             'electricite_disponible', 'nb_classes_electrifiees',
-            'cantine_fonctionnelle', 'nb_rationnaires', 'nb_de_fille_beneficiaires', 'source_financement',
-            'laves_mains_disponibles', 'nb_laves_mains', 'domaine_cloture', 'superficie_cloture', 'type_cloture',
-            'espace_recreation_disponible', 'superficie_recreation', 'jardin_scolaire', 'utilisation_de_la_produit',
-            'nb_total_latrines', 'nb_latrines_filles', 'nb_latrines_garcons', 'nb_latrines_mixt',
+            'cantine_fonctionnelle', 'nb_rationnaires', 'nb_de_fille_beneficiaires',
+            'source_financement', 'laves_mains_disponibles', 'nb_laves_mains',
+            'domaine_cloture', 'superficie_cloture', 'type_cloture',
+            'espace_recreation_disponible', 'superficie_recreation',
+            'jardin_scolaire', 'utilisation_de_la_produit',
+            'nb_latrines_filles', 'nb_latrines_garcons', 'nb_latrines_mixt', 'nb_total_latrines',
             'ape_existe', 'femmes_ape', 'hommes_ape', 'activites_ape', 'presidence_ape',
             'comite_gestion_existe', 'femmes_comite', 'hommes_comite', 'presidence_comite',
             'distance_centre_sante', 'apport_en_vitamine_A', 'boite_pharmacie_disponible',
             'visite_médicale_année_dernière', 'campagne_de_déparasitage',
-            'campagne_de_sensibilisation_au_VIH', 'campagne_de_sensibilisation_au_palu', 'association_eleve'
-        ] 
-         
+            'campagne_de_sensibilisation_au_VIH', 'campagne_de_sensibilisation_au_palu',
+            'association_eleve',
+        ]
+
         widgets = {
             'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de l\'école'}),
-    'info_ecole': forms.Select(attrs={'class': 'form-control'}),
-    'accessible_toute_annee': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'eau_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'type_eau': forms.Select(attrs={'class': 'form-control'}),
-    'nb_postes_eau': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 5'}),
-    'electricite_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'nb_classes_electrifiees': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 10'}),
-    'cantine_fonctionnelle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'nb_rationnaires': forms.NumberInput(attrs={'class': 'form-control'}),
-    'nb_de_fille_beneficiaires': forms.NumberInput(attrs={'class': 'form-control'}),
-    'source_financement': forms.Select(attrs={'class': 'form-control'}),
-    'laves_mains_disponibles': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'nb_laves_mains': forms.NumberInput(attrs={'class': 'form-control'}),
-    'domaine_cloture': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'superficie_cloture': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 100.50'}),
-    'type_cloture': forms.Select(attrs={'class': 'form-control'}),
-    'espace_recreation_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'superficie_recreation': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 50.00'}),
-    'jardin_scolaire': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'utilisation_de_la_produit': forms.Select(attrs={'class': 'form-control'}),
-    'nb_total_latrines': forms.NumberInput(attrs={'class': 'form-control'}),
-    'nb_latrines_filles': forms.NumberInput(attrs={'class': 'form-control'}),
-    'nb_latrines_garcons': forms.NumberInput(attrs={'class': 'form-control'}),
-    'nb_latrines_mixt': forms.NumberInput(attrs={'class': 'form-control'}),
-    'ape_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'femmes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
-    'hommes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
-    'activites_ape': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-    'presidence_ape': forms.Select(attrs={'class': 'form-control'}),
-    'comite_gestion_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'femmes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
-    'hommes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
-    'presidence_comite': forms.Select(attrs={'class': 'form-control'}),
-    'distance_centre_sante': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex: 2'}),
-    'apport_en_vitamine_A': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'boite_pharmacie_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'visite_médicale_année_dernière': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'campagne_de_déparasitage': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'campagne_de_sensibilisation_au_VIH': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'campagne_de_sensibilisation_au_palu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-    'association_eleve': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-}
-            
+            'info_ecole': forms.Select(attrs={'class': 'form-select'}),
+            'accessible_toute_annee': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'eau_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'type_eau': forms.Select(attrs={'class': 'form-select'}),
+            'nb_postes_eau': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de postes d\'eau'}),
+            'electricite_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'nb_classes_electrifiees': forms.NumberInput(attrs={'class': 'form-control'}),
+            'cantine_fonctionnelle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'nb_rationnaires': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nb_de_fille_beneficiaires': forms.NumberInput(attrs={'class': 'form-control'}),
+            'source_financement': forms.Select(attrs={'class': 'form-select'}),
+            'laves_mains_disponibles': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'nb_laves_mains': forms.NumberInput(attrs={'class': 'form-control'}),
+            'domaine_cloture': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'superficie_cloture': forms.NumberInput(attrs={'class': 'form-control'}),
+            'type_cloture': forms.Select(attrs={'class': 'form-select'}),
+            'espace_recreation_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'superficie_recreation': forms.NumberInput(attrs={'class': 'form-control'}),
+            'jardin_scolaire': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'utilisation_de_la_produit': forms.Select(attrs={'class': 'form-select'}),
+            'nb_latrines_filles': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nb_latrines_garcons': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nb_latrines_mixt': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nb_total_latrines': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'ape_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'femmes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
+            'hommes_ape': forms.NumberInput(attrs={'class': 'form-control'}),
+            'activites_ape': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'presidence_ape': forms.Select(attrs={'class': 'form-select'}),
+            'comite_gestion_existe': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'femmes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
+            'hommes_comite': forms.NumberInput(attrs={'class': 'form-control'}),
+            'presidence_comite': forms.Select(attrs={'class': 'form-select'}),
+            'distance_centre_sante': forms.NumberInput(attrs={'class': 'form-control'}),
+            'apport_en_vitamine_A': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'boite_pharmacie_disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'visite_médicale_année_dernière': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'campagne_de_déparasitage': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'campagne_de_sensibilisation_au_VIH': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'campagne_de_sensibilisation_au_palu': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'association_eleve': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }     
     
 
         labels = {
@@ -92,10 +95,11 @@ class EcoleForm(forms.ModelForm):
             'superficie_recreation': "Superficie de récréation (m²)",
             'jardin_scolaire': "Jardin scolaire",
             'utilisation_de_la_produit': "Utilisation de la production",
-            'nb_total_latrines': "Nombre total de latrines",
             'nb_latrines_filles': "Nombre de latrines pour filles",
             'nb_latrines_garcons': "Nombre de latrines pour garçons",
             'nb_latrines_mixt': "Nombre de latrines mixtes",
+            'nb_total_latrines': "Nombre total de latrines",
+            
             'ape_existe': "L'APE (Association des Parents d'Élèves) existe",
             'femmes_ape': "Nombre de femmes dans l'APE",
             'hommes_ape': "Nombre d'hommes dans l'APE",
@@ -123,16 +127,19 @@ class EcoleForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        total_latrines = cleaned_data.get('nb_total_latrines', 0)
-        latrines_filles = cleaned_data.get('nb_latrines_filles', 0)
-        latrines_garcons = cleaned_data.get('nb_latrines_garcons', 0)
-        latrines_mixt = cleaned_data.get('nb_latrines_mixt', 0)
 
-        if (latrines_filles or latrines_garcons or latrines_mixt) and \
-                (latrines_filles + latrines_garcons + latrines_mixt > total_latrines):
-            self.add_error('nb_total_latrines', "La somme des latrines pour filles, garçons et mixtes ne peut pas dépasser le nombre total de latrines.")
+        latrines_filles = cleaned_data.get('nb_latrines_filles') or 0
+        latrines_garcons = cleaned_data.get('nb_latrines_garcons') or 0
+        latrines_mixt = cleaned_data.get('nb_latrines_mixt') or 0
 
-        return cleaned_data
+        # Calcul automatique
+        total_latrines = latrines_filles + latrines_garcons + latrines_mixt
+        cleaned_data['nb_total_latrines'] = total_latrines
+
+        if total_latrines == 0:
+            self.add_error(None, "Veuillez renseigner au moins une latrine.")
+
+        return cleaned_data 
 
 
 class EcoleIdentificationForm(forms.ModelForm):
@@ -252,6 +259,9 @@ class LocaliteRuraleForm(forms.ModelForm):
         return activites
 
 
+from django import forms
+from .models import Local
+
 class LocalForm(forms.ModelForm):
     class Meta:
         model = Local
@@ -262,19 +272,19 @@ class LocalForm(forms.ModelForm):
             'etat_fenetres', 'source_financement', 'observations'
         ]
         widgets = {
-            'numero': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Numéro du local'}),
-            'affectation_du_local': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'dont': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'annee_mise_en_service': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex : 1995'}),
-            'surface': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Surface en m²'}),
-            'nature_murs': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'etat_murs': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'nature_toit': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'etat_toit': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'nature_sol': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'etat_sol': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'etat_portes': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
-            'etat_fenetres': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'numero': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Numéro du local', 'min': '0'}),
+            'affectation_du_local': forms.Select(attrs={'class': 'form-select'}),
+            'dont': forms.Select(attrs={'class': 'form-select'}),
+            'annee_mise_en_service': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ex : 1995', 'min': '1900'}),
+            'surface': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Surface en m²', 'min': '1'}),
+            'nature_murs': forms.Select(attrs={'class': 'form-select'}),
+            'etat_murs': forms.Select(attrs={'class': 'form-select'}),
+            'nature_toit': forms.Select(attrs={'class': 'form-select'}),
+            'etat_toit': forms.Select(attrs={'class': 'form-select'}),
+            'nature_sol': forms.Select(attrs={'class': 'form-select'}),
+            'etat_sol': forms.Select(attrs={'class': 'form-select'}),
+            'etat_portes':forms.Select(attrs={'class': 'form-select'}),
+            'etat_fenetres': forms.Select(attrs={'class': 'form-select'}),
             'source_financement': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
             'observations': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observations supplémentaires'}),
         }
@@ -295,6 +305,25 @@ class LocalForm(forms.ModelForm):
             'source_financement': 'Source de financement',
             'observations': 'Observations',
         }
+
+    # Validation personnalisée
+    def clean_numero(self):
+        numero = self.cleaned_data.get('numero')
+        if not numero:
+            raise forms.ValidationError("Le numéro est requis.")
+        return numero
+
+    def clean_surface(self):
+        surface = self.cleaned_data.get('surface')
+        if surface <= 0:
+            raise forms.ValidationError("La surface doit être supérieure à zéro.")
+        return surface
+
+    def clean_annee_mise_en_service(self):
+        annee = self.cleaned_data.get('annee_mise_en_service')
+        if annee < 1900 or annee > 2100:
+            raise forms.ValidationError("L'année doit être comprise entre 1900 et 2100.")
+        return annee
 
 
 # Formulaire pour Mobilier Collectif
@@ -464,60 +493,41 @@ class NouveauxInscritsForm(forms.ModelForm):
             raise forms.ValidationError("Le total des inscrits doit être supérieur à zéro.")
         return cleaned_data
 
-from django import forms
-from .models import DivisionPedagogique
-import json
+
 
 class DivisionPedagogiqueForm(forms.ModelForm):
     class Meta:
         model = DivisionPedagogique
         fields = [
-            'niveau', 'numero_salle', 'vacation', 'multigrade', 
-            'double_flux', 'age_6_ans', 'age_7_ans', 'age_8_ans', 
-            'total_eleves', 'redoublants'
+            'division_pedagogique', 'annee_etude', 'numero_salle_classe','type_classe', 'numero_enseignant_arabe',
+            'numero_enseignant_francais', 'apres_oct_2008_moins_6', 'oct_2008_6_ans', 'oct_2007_7_ans',
+            'oct_2006_8_ans', 'oct_2005_9_ans', 'oct_2004_10_ans', 'oct_2003_11_ans', 
+            'oct_2002_12_ans', 'oct_2001_13_ans', 'oct_2000_14_ans', 'avant_2000_plus_14', 
+            'dont_redoublants', 'redoublants_avec_cef'
         ]
         widgets = {
-            'niveau': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : CP, CE1'}),
-            'numero_salle': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Numéro de salle'}),
-            'vacation': forms.Select(attrs={'class': 'form-select'}),
-            'multigrade': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'double_flux': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'age_6_ans': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': '{"garcons": 5, "filles": 4}'}),
-            'age_7_ans': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': '{"garcons": 7, "filles": 6}'}),
-            'age_8_ans': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': '{"garcons": 4, "filles": 5}'}),
-            'total_eleves': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'placeholder': 'Calculé automatiquement'}),
-            'redoublants': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de redoublants'}),
+            'division_pedagogique': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Division pédagogique'}),
+            'annee_etude': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Année d\'étude'}),
+            'numero_salle_classe': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'N° salle de classe'}),
+            'type_classe': forms.Select(attrs={'class': 'form-select'}),
+            'numero_enseignant_arabe': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Numéro enseignant arabe'}),
+            'numero_enseignant_francais': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Numéro enseignant francais'}),
+            
+            'apres_oct_2008_moins_6': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Moins de 6 ans'}),
+            'oct_2008_6_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '6 ans'}),
+            'oct_2007_7_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '7 ans'}),
+            'oct_2006_8_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '8 ans'}),
+            'oct_2005_9_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '9 ans'}),
+            'oct_2004_10_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '10 ans'}),
+            'oct_2003_11_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '11 ans'}),
+            'oct_2002_12_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '12 ans'}),
+            'oct_2001_13_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '13 ans'}),
+            'oct_2000_14_ans': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '14 ans'}),
+            'avant_2000_plus_14': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Plus de 14 ans'}),
+            'dont_redoublants': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Dont redoublants'}),
+            'redoublants_avec_cef': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Redoublants avec CEF'}),
+            
         }
-        labels = {
-            'niveau': 'Niveau',
-            'numero_salle': 'Numéro de salle',
-            'vacation': 'Type de vacation',
-            'multigrade': 'Classe multigrade',
-            'double_flux': 'Classe à double flux',
-            'age_6_ans': 'Répartition des élèves de 6 ans',
-            'age_7_ans': 'Répartition des élèves de 7 ans',
-            'age_8_ans': 'Répartition des élèves de 8 ans',
-            'total_eleves': 'Total des élèves',
-            'redoublants': 'Nombre de redoublants',
-        }
-
-    def clean(self):
-        """Calcul automatique du total des élèves à partir des champs JSON."""
-        cleaned_data = super().clean()
-        
-        ages = ['age_6_ans', 'age_7_ans', 'age_8_ans']  # Tu peux ajouter plus d'âges ici
-        total_eleves = 0
-
-        for age_field in ages:
-            try:
-                data = json.loads(cleaned_data.get(age_field, '{}'))
-                total_eleves += data.get("garcons", 0) + data.get("filles", 0)
-            except (TypeError, ValueError):
-                raise forms.ValidationError(f"Le champ {age_field} doit contenir un JSON valide.")
-        
-        cleaned_data['total_eleves'] = total_eleves
-        return cleaned_data
-
 
 from django import forms
 from .models import AireRecrutement
@@ -526,95 +536,27 @@ class AireRecrutementForm(forms.ModelForm):
     class Meta:
         model = AireRecrutement
         fields = [
-            'localite', 'distance_km', 'nombre_eleves_garcons', 
-            'nombre_eleves_filles', 'total_eleves', 
-            'redoublants_garcons', 'redoublants_filles'
+            'localite', 'distance',
+            'g_1a', 'f_1a', 'g_2a', 'f_2a', 'g_3a', 'f_3a',
+            'g_4a', 'f_4a', 'g_5a', 'f_5a', 'g_6a', 'f_6a',
         ]
         widgets = {
-            'localite': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la localité ou du quartier'}),
-            'distance_km': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Distance estimée (en km)'}),
-            'nombre_eleves_garcons': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de garçons'}),
-            'nombre_eleves_filles': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de filles'}),
-            'total_eleves': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'placeholder': 'Calculé automatiquement'}),
-            'redoublants_garcons': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de garçons redoublants'}),
-            'redoublants_filles': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de filles redoublantes'}),
+            'localite': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Localité/Quartier'}),
+            'distance': forms.Select(attrs={'class': 'form-select'}),
+            'g_1a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 1A'}),
+            'f_1a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 1A'}),
+            'g_2a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 2A'}),
+            'f_2a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 2A'}),
+            'g_3a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 3A'}),
+            'f_3a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 3A'}),
+            'g_4a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 4A'}),
+            'f_4a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 4A'}),
+            'g_5a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 5A'}),
+            'f_5a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 5A'}),
+            'g_6a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 6A'}),
+            'f_6a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 6A'}),
+            # Continue avec les autres champs...
         }
-        labels = {
-            'localite': 'Localité/Quartier',
-            'distance_km': 'Distance (km)',
-            'nombre_eleves_garcons': 'Nombre d\'élèves garçons',
-            'nombre_eleves_filles': 'Nombre d\'élèves filles',
-            'total_eleves': 'Total des élèves',
-            'redoublants_garcons': 'Garçons redoublants',
-            'redoublants_filles': 'Filles redoublantes',
-        }
-
-    def clean(self):
-        """Calcul automatique du total des élèves en fonction du nombre de garçons et filles."""
-        cleaned_data = super().clean()
-
-        # Récupération des données des champs
-        garcons = cleaned_data.get('nombre_eleves_garcons', 0)
-        filles = cleaned_data.get('nombre_eleves_filles', 0)
-        total = garcons + filles
-
-        # Mise à jour automatique du champ 'total_eleves'
-        cleaned_data['total_eleves'] = total
-
-        # Vérification de cohérence
-        if total < 0:
-            raise forms.ValidationError("Le total des élèves ne peut pas être négatif.")
-
-        return cleaned_data
-
-
-from django import forms
-from .models import AireRecrutement
-
-class AireRecrutementForm(forms.ModelForm):
-    class Meta:
-        model = AireRecrutement
-        fields = [
-            'localite', 'distance_km', 'nombre_eleves_garcons', 
-            'nombre_eleves_filles', 'total_eleves', 
-            'redoublants_garcons', 'redoublants_filles'
-        ]
-        widgets = {
-            'localite': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la localité ou du quartier'}),
-            'distance_km': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Distance estimée (en km)'}),
-            'nombre_eleves_garcons': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de garçons'}),
-            'nombre_eleves_filles': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de filles'}),
-            'total_eleves': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly', 'placeholder': 'Calculé automatiquement'}),
-            'redoublants_garcons': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de garçons redoublants'}),
-            'redoublants_filles': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de filles redoublantes'}),
-        }
-        labels = {
-            'localite': 'Localité/Quartier',
-            'distance_km': 'Distance (km)',
-            'nombre_eleves_garcons': 'Nombre d\'élèves garçons',
-            'nombre_eleves_filles': 'Nombre d\'élèves filles',
-            'total_eleves': 'Total des élèves',
-            'redoublants_garcons': 'Garçons redoublants',
-            'redoublants_filles': 'Filles redoublantes',
-        }
-
-    def clean(self):
-        """Calcul automatique du total des élèves en fonction du nombre de garçons et filles."""
-        cleaned_data = super().clean()
-
-        # Récupération des données des champs
-        garcons = cleaned_data.get('nombre_eleves_garcons', 0)
-        filles = cleaned_data.get('nombre_eleves_filles', 0)
-        total = garcons + filles
-
-        # Mise à jour automatique du champ 'total_eleves'
-        cleaned_data['total_eleves'] = total
-
-        # Vérification de cohérence
-        if total < 0:
-            raise forms.ValidationError("Le total des élèves ne peut pas être négatif.")
-
-        return cleaned_data
 
 from django import forms
 from .models import StatistiqueGenerale
@@ -660,256 +602,137 @@ class StatistiqueGeneraleForm(forms.ModelForm):
 from django import forms
 from .models import MobiliteEleves
 
+from django import forms
+from .models import MobiliteEleves
+
 class MobiliteElevesForm(forms.ModelForm):
     class Meta:
         model = MobiliteEleves
         fields = [
-            'nom_etablissement', 'localite_origine', 'pays_origine', 
-            'statut_scolarisation', 'nombre_garcons', 'nombre_filles', 
-            'total_redoublants', 'total_eleves'
+            'etablissement',
+            'g_1a', 'f_1a', 'g_2a', 'f_2a', 'g_3a', 'f_3a',
+            'g_4a', 'f_4a', 'g_5a', 'f_5a', 'g_6a', 'f_6a',
         ]
         widgets = {
-            'nom_etablissement': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nom de l\'établissement fréquenté'
-            }),
-            'localite_origine': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Localité ou commune d\'origine'
-            }),
-            'pays_origine': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Pays d\'origine (laisser vide si non applicable)'
-            }),
-            'statut_scolarisation': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'nombre_garcons': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre de garçons'
-            }),
-            'nombre_filles': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre de filles'
-            }),
-            'total_redoublants': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre total de redoublants'
-            }),
-            'total_eleves': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'readonly': 'readonly', 
-                'placeholder': 'Calculé automatiquement'
-            }),
-        }
-        labels = {
-            'nom_etablissement': 'Nom de l\'établissement',
-            'localite_origine': 'Localité d\'origine',
-            'pays_origine': 'Pays d\'origine',
-            'statut_scolarisation': 'Statut de scolarisation',
-            'nombre_garcons': 'Nombre de garçons',
-            'nombre_filles': 'Nombre de filles',
-            'total_redoublants': 'Total des redoublants',
-            'total_eleves': 'Total des élèves',
+            'etablissement': forms.Select(attrs={'class': 'form-select'}),
+            'g_1a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 1A'}),
+            'f_1a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 1A'}),
+            'g_2a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 2A'}),
+            'f_2a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 2A'}),
+            'g_3a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 3A'}),
+            'f_3a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 3A'}),
+            'g_4a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 4A'}),
+            'f_4a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 4A'}),
+            'g_5a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 5A'}),
+            'f_5a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 5A'}),
+            'g_6a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Garçons 6A'}),
+            'f_6a': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Filles 6A'}),
         }
 
-    def clean(self):
-        """Calculer automatiquement le total des élèves et valider les données."""
-        cleaned_data = super().clean()
-        nombre_garcons = cleaned_data.get('nombre_garcons', 0)
-        nombre_filles = cleaned_data.get('nombre_filles', 0)
-        total_eleves = nombre_garcons + nombre_filles
-
-        cleaned_data['total_eleves'] = total_eleves
-
-        # Validation : redoublants ne peuvent pas excéder le total des élèves
-        total_redoublants = cleaned_data.get('total_redoublants', 0)
-        if total_redoublants > total_eleves:
-            raise forms.ValidationError(
-                "Le total des redoublants ne peut pas être supérieur au total des élèves."
-            )
-
-        return cleaned_data
-
-
-from django import forms
-from .models import StructurePedagogique
 
 class StructurePedagogiqueForm(forms.ModelForm):
     class Meta:
         model = StructurePedagogique
         fields = [
-            'division', 'nombre_divisions', 'nombre_eleves_garcons', 
-            'nombre_eleves_filles', 'total_eleves', 'redoublants_garcons', 
-            'redoublants_filles', 'total_redoublants', 'multigrade', 'double_flux'
+            'niveau', 
+            'simples', 
+            'multigrades', 
+            'double_flux',
+            'inscrits_garcons', 
+            'inscrits_filles', 
+            'redoublants_garcons', 
+            'redoublants_filles'
         ]
         widgets = {
-            'division': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Ex : CP, CE1'
-            }),
-            'nombre_divisions': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre de divisions pédagogiques'
-            }),
-            'nombre_eleves_garcons': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre d\'élèves garçons'
-            }),
-            'nombre_eleves_filles': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre d\'élèves filles'
-            }),
-            'total_eleves': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'readonly': 'readonly', 
-                'placeholder': 'Calculé automatiquement'
-            }),
-            'redoublants_garcons': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre de garçons redoublants'
-            }),
-            'redoublants_filles': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Nombre de filles redoublantes'
-            }),
-            'total_redoublants': forms.NumberInput(attrs={
-                'class': 'form-control', 
-                'readonly': 'readonly', 
-                'placeholder': 'Calculé automatiquement'
-            }),
-            'multigrade': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'double_flux': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
-        labels = {
-            'division': 'Division Pédagogique',
-            'nombre_divisions': 'Nombre de Divisions',
-            'nombre_eleves_garcons': 'Nombre d\'élèves garçons',
-            'nombre_eleves_filles': 'Nombre d\'élèves filles',
-            'total_eleves': 'Total des élèves',
-            'redoublants_garcons': 'Nombre de garçons redoublants',
-            'redoublants_filles': 'Nombre de filles redoublantes',
-            'total_redoublants': 'Total des redoublants',
-            'multigrade': 'Classe multigrade',
-            'double_flux': 'Classe à double flux',
+            'niveau': forms.Select(attrs={'class': 'form-control'}),
+            'simples': forms.NumberInput(attrs={'class': 'form-control'}),
+            'multigrades': forms.NumberInput(attrs={'class': 'form-control'}),
+            'double_flux': forms.NumberInput(attrs={'class': 'form-control'}),
+            'inscrits_garcons': forms.NumberInput(attrs={'class': 'form-control'}),
+            'inscrits_filles': forms.NumberInput(attrs={'class': 'form-control'}),
+            'redoublants_garcons': forms.NumberInput(attrs={'class': 'form-control'}),
+            'redoublants_filles': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
-    def clean(self):
-        """Validation et calcul automatique des champs dérivés."""
-        cleaned_data = super().clean()
-        nombre_eleves_garcons = cleaned_data.get('nombre_eleves_garcons', 0)
-        nombre_eleves_filles = cleaned_data.get('nombre_eleves_filles', 0)
-        redoublants_garcons = cleaned_data.get('redoublants_garcons', 0)
-        redoublants_filles = cleaned_data.get('redoublants_filles', 0)
-
-        # Calcul des totaux
-        total_eleves = nombre_eleves_garcons + nombre_eleves_filles
-        total_redoublants = redoublants_garcons + redoublants_filles
-
-        cleaned_data['total_eleves'] = total_eleves
-        cleaned_data['total_redoublants'] = total_redoublants
-
-        # Validation cohérente
-        if total_redoublants > total_eleves:
-            raise forms.ValidationError(
-                "Le total des redoublants ne peut pas être supérieur au total des élèves."
-            )
-
-        return cleaned_data
 
 
-from django import forms
-from .models import FinancesEcole
-
-class FinancesEcoleForm(forms.ModelForm):
+class ContributionsForm(forms.ModelForm):
     class Meta:
-        model = FinancesEcole
-        fields = '__all__'  # Inclut automatiquement tous les champs du modèle
-        widgets = {  # Ajout de widgets pour personnaliser l'affichage
-            'contributions_familles': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Contributions des familles'}),
-            'autres_contributions': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Autres contributions'}),
-            'activites_generatrices_revenus': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Revenus issus d\'activités'}),
-            'construction_batiments': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Dépenses de construction'}),
-            'renovation_batiments': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Dépenses de rénovation'}),
-            'achat_mobilier': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Achat de mobilier'}),
-            'renovation_mobilier': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Rénovation du mobilier'}),
-            'achat_equipements_pedagogiques': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Équipements pédagogiques'}),
-            'logement_enseignants': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Logement pour enseignants'}),
-            'salaires_personnel_enseignant': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Salaires enseignants'}),
-            'salaires_personnel_autre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Autres salaires'}),
-            'cantine_scolaire': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Budget cantine'}),
-            'financement_projets': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Financements projets'}),
+        model = Contributions
+        fields = ['contributions_reçues_familles', 'annee_precedente', 'annee_courante']
+        labels = {
+            'contributions_reçues_familles': "Catégorie de contribution",
+            'annee_precedente': "Montant de l'année précédente (FCFA)",
+            'annee_courante': "Montant de l'année en cours (FCFA)",
         }
-        labels = {  # Ajout d'étiquettes lisibles
-            'contributions_familles': 'Contributions des familles',
-            'autres_contributions': 'Autres contributions',
-            'activites_generatrices_revenus': 'Revenus générés',
-            'construction_batiments': 'Construction des bâtiments',
-            'renovation_batiments': 'Rénovation des bâtiments',
-            'achat_mobilier': 'Achat de mobilier',
-            'renovation_mobilier': 'Rénovation de mobilier',
-            'achat_equipements_pedagogiques': 'Achat d’équipements pédagogiques',
-            'logement_enseignants': 'Logement des enseignants',
-            'salaires_personnel_enseignant': 'Salaires du personnel enseignant',
-            'salaires_personnel_autre': 'Salaires du personnel autre',
-            'cantine_scolaire': 'Budget pour la cantine',
-            'financement_projets': 'Financement des projets',
+        widgets = {
+            'contributions_reçues_familles': forms.Select(attrs={
+                'class': 'form-control',
+                'aria-label': 'Sélectionnez la catégorie de contribution'
+            }),
+            'annee_precedente': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': '0.00',
+                'step': '0.01',  # Ensures precision for decimal inputs
+                'min': '0'  # Prevents negative values
+            }),
+            'annee_courante': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': '0.00',
+                'step': '0.01',
+                'min': '0'
+            }),
+        }
+class DonneeFinanciereForm(forms.ModelForm):
+    class Meta:
+        model = DonneeFinanciere
+        fields = [
+            'categorie',
+            'budget_ecole',
+            'collectivites',
+            'ape',
+            'autre',
+            'projet_ecole',
+            'nature_projet',
+            'partenariat',
+            'type_partenariat',
+        ]
+        labels = {
+            'categorie': "Catégorie de dépense",
+            'budget_ecole': "Budget école (FCFA)",
+            'collectivites': "Contribution des collectivités (FCFA)",
+            'ape': "Contribution de l'APE (FCFA)",
+            'autre': "Autres contributions (FCFA)",
+            'projet_ecole': "L'école a-t-elle un projet d'école ?",
+            'nature_projet': "Nature du projet",
+            'partenariat': "L'école a-t-elle des partenariats ?",
+            'type_partenariat': "Type de partenariat",
+        }
+        widgets = {
+            'categorie': forms.Select(attrs={'class': 'form-control'}),
+            'budget_ecole': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00', 'step': '0.01'}),
+            'collectivites': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00', 'step': '0.01'}),
+            'ape': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00', 'step': '0.01'}),
+            'autre': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00', 'step': '0.01'}),
+            'projet_ecole': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'nature_projet': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Décrivez le projet'}),
+            'partenariat': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'type_partenariat': forms.Select(attrs={'class': 'form-control'}),
         }
 
-
+    
 from django import forms
 from .models import ObservationEventuelle
 
 class ObservationEventuelleForm(forms.ModelForm):
     # Champ supplémentaire pour une personnalisation plus avancée (exemple)
-    commentaire_supplementaire = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ajoutez un commentaire si nécessaire',
-            'rows': 3
-        }),
-        label='Commentaire supplémentaire'
-    )
-
     class Meta:
         model = ObservationEventuelle
-        fields = ['contenu']  # Inclut uniquement les champs souhaités du modèle
-        widgets = {
-            'contenu': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'Entrez vos observations détaillées ici...',
-                'rows': 6
-            }),
-        }
-        labels = {
-            'contenu': 'Observations principales',
-        }
-from django import forms
-from .models import SignatureEtCachet
-
-class SignatureEtCachetForm(forms.ModelForm):
-    class Meta:
-        model = SignatureEtCachet
         fields = '__all__'  # Inclut tous les champs du modèle
         widgets = {
-            'observation': forms.Select(attrs={'class': 'form-control'}),  # Menu déroulant pour lier une observation existante
-            'nom_signataire': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Nom du signataire'
-            }),
-            'fonction_signataire': forms.Select(attrs={'class': 'form-control'}),  # Menu déroulant pour les choix de fonction
-            'date_signature': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',
-                'placeholder': 'YYYY-MM-DD'
-            }),
-            'cachet_present': forms.CheckboxInput(attrs={'class': 'form-check-input'}),  # Case à cocher
-        }
-        labels = {
-            'observation': 'Observation liée',
-            'nom_signataire': 'Nom du signataire',
-            'fonction_signataire': 'Fonction du signataire',
-            'date_signature': 'Date de signature',
-            'cachet_present': 'Cachet apposé',
+            'observations': forms.Textarea(attrs={'placeholder': 'Ajoutez vos observations ici...', 'class': 'form-control'}),
+            'directeur_nom': forms.TextInput(attrs={'placeholder': 'Nom du directeur', 'class': 'form-control'}),
+            'directeur_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'inspection_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'direction_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }

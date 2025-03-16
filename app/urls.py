@@ -12,7 +12,7 @@ from .views import register_view, login_view, logout_view
 
 urlpatterns = [
     path('register/', register_view, name='register'),
-    path('login/', login_view, name='login'),
+    path('', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     # Gestion des écoles
     path('ecoles/', gestion_ecole, name='gestion_ecole'),
@@ -93,12 +93,6 @@ urlpatterns = [
     path('observations/<int:pk>/', views.gestion_observations, name='gestion_observations'),
     path('observations/supprimer/<int:pk>/', views.supprimer_observation, name='supprimer_observation'),
    
-   
-   
-    path('signatures/', views.gestion_signatures, name='gestion_signatures'),
-    path('signatures/<int:pk>/', views.gestion_signatures, name='gestion_signatures'),
-    path('signatures/supprimer/<int:pk>/', views.supprimer_signature, name='supprimer_signature'),
-
 
     path('dashboard/', views.dashboard, name='dashboard'),
 

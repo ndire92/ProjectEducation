@@ -3,13 +3,14 @@ from django.contrib.auth import logout
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.db.models import Count  # Ajoutez cet import
-
+from django.db.models import Count, Q 
+from django.db.models import Sum
 
 
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import DotationEleve, Ecole, Ecole_identification, GuideEtManuel
-from .forms import DotationEleveForm, EcoleForm, EcoleIdentificationForm
+from .models import Contributions, DonneeFinanciere, DotationEleve, Ecole, Ecole_identification, GuideEtManuel
+from .forms import ContributionsForm, DotationEleveForm, EcoleForm, EcoleIdentificationForm
 from .models import LocaliteRurale
 from .forms import LocaliteRuraleForm
 from django.shortcuts import render, get_object_or_404, redirect
@@ -38,10 +39,9 @@ from .models import StructurePedagogique
 from .forms import StructurePedagogiqueForm
 from .models import ObservationEventuelle
 from .forms import ObservationEventuelleForm
-from .models import FinancesEcole
-from .forms import FinancesEcoleForm
+from .models import DonneeFinanciere
+from .forms import DonneeFinanciereForm
 from django.contrib import messages
-
 
 
 
@@ -59,7 +59,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('gestion_ecole')
+            return redirect('dashboard')
         else:
             return HttpResponse("Échec de la connexion.")
     return render(request, 'login.html')
@@ -91,30 +91,33 @@ def gestion_ecole(request, pk=None):
     ecole = get_object_or_404(Ecole, pk=pk) if pk else Ecole()
 
     # Filtrage basé sur la recherche
-    query = request.GET.get('q', '')
+    query = request.GET.get('q', '').strip()  # Supprime les espaces inutiles
     if query:
-        ecoles = Ecole.objects.filter(nom__icontains=query) | Ecole.objects.filter(nouveau_code__icontains=query)
+        ecoles = Ecole.objects.filter(
+            Q(nom__icontains=query) | Q(nouveau_code__icontains=query)
+        )
     else:
         ecoles = Ecole.objects.all()
 
+    # Gestion du formulaire
     if request.method == "POST":
         form = EcoleForm(request.POST, instance=ecole)
         if form.is_valid():
             form.save()
             messages.success(request, "École enregistrée avec succès !")
-            return redirect('gestion_ecole')
+            return redirect('gestion_ecole')  # Redirection après succès
         else:
             messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
         form = EcoleForm(instance=ecole)
 
+    # Rendu de la page
     return render(request, 'app/gestion_ecole.html', {
         'form': form,
         'ecoles': ecoles,
         'ecole': ecole,
         'query': query
     })
-
 def supprimer_ecole(request, pk):
     ecole = get_object_or_404(Ecole, pk=pk)
     if request.method == "POST":
@@ -618,12 +621,35 @@ def gestion_structures(request, pk=None):
             return redirect('gestion_structures')
     else:
         form = StructurePedagogiqueForm(instance=structure)
+        # Calcul des totaux
+    total_simples = sum(s.simples for s in structures)
+    total_multigrades = sum(s.multigrades for s in structures)
+    total_double_flux = sum(s.double_flux for s in structures)
+    total_general = sum(s.divisions_total for s in structures)
+
+    total_inscrits_garcons = sum(s.inscrits_garcons for s in structures)
+    total_inscrits_filles = sum(s.inscrits_filles for s in structures)
+    total_inscrits = sum(s.inscrits_total for s in structures)
+
+    total_redoublants_garcons = sum(s.redoublants_garcons for s in structures)
+    total_redoublants_filles = sum(s.redoublants_filles for s in structures)
+    total_redoublants = sum(s.redoublants_total for s in structures)
 
     return render(request, 'app/structures.html', {
         'form': form,
         'structures': structures,
         'structure': structure,
-        'query': query
+        'query': query,
+      'total_simples': total_simples,
+        'total_multigrades': total_multigrades,
+        'total_double_flux': total_double_flux,
+        'total_general': total_general,
+        'total_inscrits_garcons': total_inscrits_garcons,
+        'total_inscrits_filles': total_inscrits_filles,
+        'total_inscrits': total_inscrits,
+        'total_redoublants_garcons': total_redoublants_garcons,
+        'total_redoublants_filles': total_redoublants_filles,
+        'total_redoublants': total_redoublants,
     })
 
 def supprimer_structure(request, pk):
@@ -636,35 +662,53 @@ def supprimer_structure(request, pk):
     return render(request, 'app/structure_delete.html', {'structure': structure})
 
 
-
 def gestion_finances(request, pk=None):
-    finance = get_object_or_404(FinancesEcole, pk=pk) if pk else None
+    # Vérification de l'existence d'une instance de DonneeFinanciere
+    finance = get_object_or_404(DonneeFinanciere, pk=pk) if pk else None
 
-    # Filtrage par activité génératrice
+    # Filtrage : Vérifier si le champ activites_generatrices_revenus existe
     query = request.GET.get('q', '')
     if query:
-        finances = FinancesEcole.objects.filter(activites_generatrices_revenus__gte=float(query))
+        try:
+            query_value = float(query)
+            finances = DonneeFinanciere.objects.filter(activites_generatrices_revenus__gte=query_value)
+        except ValueError:
+            finances = DonneeFinanciere.objects.all()  # Si la conversion échoue, on affiche tout
     else:
-        finances = FinancesEcole.objects.all()
+        finances = DonneeFinanciere.objects.all()
+
+    # Récupération des contributions et calcul des totaux
+    contributions = Contributions.objects.all()
+    totaux = Contributions.calculer_totaux()
+
+    # Initialisation des formulaires
+    form_donnee_financiere = DonneeFinanciereForm(request.POST or None, instance=finance)
+    form_contributions = ContributionsForm(request.POST or None)
 
     if request.method == "POST":
-        form = FinancesEcoleForm(request.POST, instance=finance)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Finances enregistrées avec succès !")
+        if form_donnee_financiere.is_valid():
+            form_donnee_financiere.save()
+            messages.success(request, "Les données financières ont été enregistrées avec succès !")
             return redirect('gestion_finances')
-    else:
-        form = FinancesEcoleForm(instance=finance)
+
+        if form_contributions.is_valid():
+            form_contributions.save()
+            messages.success(request, "Les contributions ont été enregistrées avec succès !")
+            return redirect('gestion_finances')
 
     return render(request, 'app/finances.html', {
-        'form': form,
+        'form_donnee_financiere': form_donnee_financiere,
+        'form_contributions': form_contributions,
         'finances': finances,
-        'finance': finance,
-        'query': query
+        'contributions': contributions,
+        'query': query,
+        'total_annee_precedente': totaux['total_annee_precedente'],
+        'total_annee_en_cours': totaux['total_annee_en_cours'],
     })
 
+
 def supprimer_finance(request, pk):
-    finance = get_object_or_404(FinancesEcole, pk=pk)
+    finance = get_object_or_404(DonneeFinanciere, pk=pk)
     if request.method == "POST":
         finance.delete()
         messages.success(request, "Finance supprimée avec succès !")
@@ -709,58 +753,44 @@ def supprimer_observation(request, pk):
 
     return render(request, 'app/observation_delete.html', {'observation': observation})
 
-
-from .models import SignatureEtCachet
-from .forms import SignatureEtCachetForm
-
-def gestion_signatures(request, pk=None):
-    signature = get_object_or_404(SignatureEtCachet, pk=pk) if pk else None
-
-    # Filtrage par nom signataire
-    query = request.GET.get('q', '')
-    if query:
-        signatures = SignatureEtCachet.objects.filter(nom_signataire__icontains=query)
-    else:
-        signatures = SignatureEtCachet.objects.all()
-
-    if request.method == "POST":
-        form = SignatureEtCachetForm(request.POST, instance=signature)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Signature enregistrée avec succès !")
-            return redirect('gestion_signatures')
-    else:
-        form = SignatureEtCachetForm(instance=signature)
-
-    return render(request, 'app/signatures.html', {
-        'form': form,
-        'signatures': signatures,
-        'signature': signature,
-        'query': query
-    })
-
-def supprimer_signature(request, pk):
-    signature = get_object_or_404(SignatureEtCachet, pk=pk)
-    if request.method == "POST":
-        signature.delete()
-        messages.success(request, "Signature supprimée avec succès !")
-        return redirect('gestion_signatures')
-
-    return render(request, 'app/signature_delete.html', {'signature': signature})
-
+from django.db.models import Count, Case, When, IntegerField
 
 def dashboard(request):
-    # Récupérer des données pour afficher sur le tableau de bord
+    # Statistiques des écoles
+    total_ecoles = Ecole_identification.objects.count()
+    ecoles_par_statut = Ecole_identification.objects.values('statut').annotate(count=Count('id'))
+    ecoles_par_zone = Ecole_identification.objects.values('zone').annotate(count=Count('id'))
+    
+    # Statistiques des localités rurales
+    total_localites = LocaliteRurale.objects.count()
+    localites_par_acces = LocaliteRurale.objects.values('type_acces').annotate(count=Count('id'))
+    localites_services = LocaliteRurale.objects.aggregate(
+        electricite=Count('id', filter=Q(electricite_disponible=True)),
+        sante=Count('id', filter=Q(service_sante_disponible=True))
+    )    # **Statistiques des écoles**
     total_ecoles = Ecole.objects.count()
-    total_locaux = Local.objects.count()
-    total_mobilier = MobilierEtEquipements.objects.count()
+    ecoles_par_statut = Ecole.objects.values('info_ecole').annotate(count=Count('id'))
+    ecoles_eau = Ecole.objects.filter(eau_disponible=True).count()
+    ecoles_electricite = Ecole.objects.filter(electricite_disponible=True).count()
 
-    # Calculer d'autres statistiques si nécessaire
-    # Exemple: Nombre d'écoles par statut
-    ecoles_par_statut = Ecole.objects.values('ouverte').annotate(count=Count('id'))
-    return render(request, 'app/dashboard.html', {
+    # **Statistiques des locaux**
+    total_locaux = Local.objects.count()
+    locaux_surface_totale = Local.objects.aggregate(total_surface=Sum('surface'))['total_surface']
+    
+
+    context = {
         'total_ecoles': total_ecoles,
-        'total_locaux': total_locaux,
-        'total_mobilier': total_mobilier,
         'ecoles_par_statut': ecoles_par_statut,
-    })
+        'ecoles_par_zone': ecoles_par_zone,
+        'total_localites': total_localites,
+        'localites_par_acces': localites_par_acces,
+        'localites_services': localites_services,
+        'total_ecoles': total_ecoles,
+        'ecoles_par_statut': ecoles_par_statut,
+        'ecoles_eau': ecoles_eau,
+        'ecoles_electricite': ecoles_electricite,
+        'total_locaux': total_locaux,
+        
+        'locaux_surface_totale': locaux_surface_totale,
+    }
+    return render(request, 'app/dashboard.html', context)

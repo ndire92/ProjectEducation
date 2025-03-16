@@ -29,11 +29,23 @@
             <h4 class="text-primary fw-bold mb-3">
                 {% if aire %} Modifier une Aire {% else %} Ajouter une Aire {% endif %}
             </h4>
-            <form method="post">
+            <form method="post" class="mt-3">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-success w-100 fw-bold">
-                    {% if aire %} Mettre à Jour {% else %} Enregistrer {% endif %}
+    
+                <div class="row">
+                    {% for field in form %}
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <label class="fw-bold text-secondary">{{ field.label }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"></span>
+                                {{ field }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+    
+                <button type="submit" class="btn btn-success w-100 fw-bold py-2 mt-3">
+                    {% if ecole_i %}🔄 Mettre à Jour{% else %}✅ Enregistrer{% endif %}
                 </button>
             </form>
         </div>
@@ -41,40 +53,64 @@
         <!-- Liste des Aires -->
         <div class="card p-4 shadow-lg">
             <h4 class="text-primary fw-bold mb-3">📋 Liste des Aires de Recrutement</h4>
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>Localité</th>
-                        <th>Distance (km)</th>
-                        <th>Élèves Garçons</th>
-                        <th>Élèves Filles</th>
-                        <th>Total Élèves</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for aire in aires %}
-                    <tr>
-                        <td>{{ aire.localite }}</td>
-                        <td>{{ aire.distance_km }}</td>
-                        <td>{{ aire.nombre_eleves_garcons }}</td>
-                        <td>{{ aire.nombre_eleves_filles }}</td>
-                        <td>{{ aire.total_eleves }}</td>
-                        <td>
-                            <a href="{% url 'gestion_aires' aire.id %}" class="btn btn-warning btn-sm">Modifier</a>
-                            <form method="POST" action="{% url 'supprimer_aire' aire.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">Aucune aire de recrutement trouvée.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover shadow-sm">
+                    <thead class="table-dark text-white">
+                        <tr>
+                            <th>Localité</th>
+                            <th>Distance</th>
+                            <th>Garçons 1A</th>
+                            <th>Filles 1A</th>
+                            <th>Garçons 2A</th>
+                            <th>Filles 2A</th>
+                            <th>Garçons 3A</th>
+                            <th>Filles 3A</th>
+                            <th>Garçons 4A</th>
+                            <th>Filles 4A</th>
+                            <th>Garçons 5A</th>
+                            <th>Filles 5A</th>
+                            <th>Garçons 6A</th>
+                            <th>Filles 6A</th>
+                         
+                            <th>Total Garçons</th>
+                            <th>Total Filles</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for aire in aires %}
+                        <tr>
+                            <td>{{ aire.localite }}</td>
+                            <td>{{ aire.get_distance_display }}</td>
+                            <td>{{ aire.g_1a }}</td>
+                            <td>{{ aire.f_1a }}</td>
+                            <td>{{ aire.g_2a }}</td>
+                            <td>{{ aire.f_2a }}</td>
+                            <td>{{ aire.g_3a }}</td>
+                            <td>{{ aire.f_3a }}</td>
+                            <td>{{ aire.g_4a }}</td>
+                            <td>{{ aire.f_4a }}</td>
+                            <td>{{ aire.g_5a }}</td>
+                            <td>{{ aire.f_5a }}</td>
+                            <td>{{ aire.g_6a }}</td>
+                            <td>{{ aire.f_6a }}</td>
+                            
+                            <td>{{ aire.total_garcons }}</td>
+                            <td>{{ aire.total_filles }}</td>
+                            <td>
+                                <a href="{% url 'gestion_aires' aire.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                                 <a href="{% url 'supprimer_aire' aire.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+                                 </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">Aucune donnée trouvée.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
         </div>
     </div>
 </div>

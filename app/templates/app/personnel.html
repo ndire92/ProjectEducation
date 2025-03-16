@@ -14,42 +14,77 @@
         <h4 class="fw-bold text-primary mb-3">{% if personnel %} Modifier le Personnel {% else %} Ajouter un Personnel {% endif %}</h4>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            <div class="row">
+                {% for field in form %}
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <label class="fw-bold text-secondary">{{ field.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"></span>
+                            {{ field }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
             <button type="submit" class="btn btn-success w-100 fw-bold">Enregistrer</button>
         </form>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Genre</th>
-                <th>Âge</th>
-                <th>Fonction</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for person in personnels %}
-            <tr>
-                <td>{{ person.nom }}</td>
-                <td>{{ person.genre }}</td>
-                <td>{{ person.age }}</td>
-                <td>{{ person.fonction }}</td>
-                <td>
-                    <a href="{% url 'gestion_personnel' person.id %}" class="btn btn-warning btn-sm">Modifier</a>
-                    <form method="POST" action="{% url 'supprimer_personnel' person.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center">Aucun personnel trouvé.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div></div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="table-dark text-white">
+                <tr>
+                    <th>N° ordre</th>
+                    <th>Matricule/Solde</th>
+                    <th>Genre</th>
+                    
+                    <th>Année de naissance</th>
+                    <th>Année de recrutement</th>
+                    <th>Année d'arrivée à l'école</th>
+                    <th>Statut</th>
+                    <th>Fonction</th>
+                    <th>Formation initiale</th>
+                    <th>Langue de travail</th>
+                    <th>Présence</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for person in personnels %}
+                <tr>
+                    <td>{{ person.numero_ordre }}</td>
+                    <td>{{ person.matricule_solde }}</td>
+                    <td>{{ person.genre }}</td>
+                    
+                    <td>{{ person.annee_naissance }}</td>
+                    <td>{{ person.annee_recrutement }}</td>
+                    <td>{{ person.annee_arrivee_ecole }}</td>
+                    <td>{{ person.statut }}</td>
+                    <td>{{ person.fonction }}</td>
+                    <td>{{ person.formation_initiale }}</td>
+                    <td>{{ person.langue_travail }}</td>
+                    <td>
+                        {% if person.present_ecole %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'gestion_personnel' person.id %}" class="btn btn-warning btn-sm">Modifier</a>
+                        <form method="POST" action="{% url 'supprimer_personnel' person.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="13" class="text-center">Aucun personnel trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+</div>
 {% endblock %}

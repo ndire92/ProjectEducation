@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 # Create your models here.
 #identification et de localisation d'une éco
 from django.contrib.auth.models import AbstractUser
-
+from django.db.models import Sum
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
@@ -214,11 +214,10 @@ class Ecole(models.Model):
     ], null=True, blank=True)  # Utilisation de la production
 
     # Sanitaires
-    nb_total_latrines = models.IntegerField(null=True, blank=True)
-    nb_latrines_filles = models.IntegerField(null=True, blank=True)
-    nb_latrines_garcons = models.IntegerField(null=True, blank=True)
-    nb_latrines_mixt = models.IntegerField(null=True, blank=True)
-
+    nb_latrines_filles = models.IntegerField(default=0, blank=True, null=True)
+    nb_latrines_garcons = models.IntegerField(default=0, blank=True, null=True)
+    nb_latrines_mixt = models.IntegerField(default=0, blank=True, null=True)
+    nb_total_latrines = models.IntegerField(default=0, blank=True, null=True)  # Total calculé
     # Gouvernance
     ape_existe = models.BooleanField()  # APE (Association des Parents d'Élèves) existe
     femmes_ape = models.IntegerField(null=True, blank=True)
@@ -252,6 +251,8 @@ class Ecole(models.Model):
     campagne_de_sensibilisation_au_palu = models.BooleanField()
     association_eleve = models.BooleanField()
 
+
+    
     def __str__(self):
         return self.nom
     
@@ -263,174 +264,96 @@ class Activite_APE(models.Model):
         return self.get_nom_display()
 
 #----------------------------------------CARACTÉRISTIQUES ET ÉTAT DES LOCAUX---------------------------
-Affectation = [
-    ('Salle_de_classe_utiliseé', 'Salle de classe utiliseé'),
-    ('salle_de_classe _non_utiliseé', 'Salle de classe  non utiliseé'),
-    ('magasin_pédagogique', 'Magasin pédagogique'),
-    (' magasin alimantaire', 'Magasin alimantaire'),
-    ('Bureau_directeur', 'Bureau directeur'),
-    ('logement', 'Logement'),
-    ('réfectoire', 'Réfectoire'),
-]
-DONT= [
-    ('Salle_autre_école', 'Salle autre école'),
-    ('Local_emprunté_loué', 'Local emprunté / loué'),
-
-]
-Nature_Murs= [
-    ('en_dur', 'En dur'),
-    ('semi_dur', 'Semi dur'),
-    ('banco', 'Banco'),
-    ('paillotes', 'Paillotes'),
-    ('autres', 'Autres'),
-
-]
-Etat_Murs= [
-    ('bon_acceptable', 'Bon / acceptable'),
-    ('mauvais', 'Mauvais'),
-
-]
-
-Nature_Toit= [
-    ('dur', 'Dur'),
-    ('tole', 'Tole'),
-    ('chaume', 'Chaume'),
-    ('autres', 'Autres'),
-
-]
-
-Etat_Toit= [
-    ('bon_acceptable', 'Bon / acceptable'),
-    ('mauvais', 'Mauvais'),
-
-]
-Nature_Sol= [
-    ('ciment', 'Ciment'),
-    ('terre', 'Terre'),
-    ('autres', 'Autres'),
-
-]
-Etat_Sol= [
-    ('bon_acceptable', 'Bon / acceptable'),
-    ('mauvais', 'Mauvais'),
-
-]
-Etat_Porte= [
-    ('bon_acceptable', 'Bon / acceptable'),
-    ('mauvais', 'Mauvais'),
-    ('Non_installées', 'Non installées'),
-
-]
-Etat_Fe= [
-    ('bon_acceptable', 'Bon / acceptable'),
-    ('mauvais', 'Mauvais'),
-    ('Non_installées', 'Non installées'),
-    
-
-]
-Source_Fe= [
-    ('etat', 'Etat'),
-    ('commune', 'Commune'),
-    ('parents', 'Parents'),
-    
-
-]
-from django.db import models
-
-class Affec(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class Do(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class NatureMur(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class EtatMur(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class NatureToit(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class EtatToit(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class NatureSol(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class EtatSol(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class EtatPorte(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class EtatFenetre(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
-class SourceFinancement(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nom
-
+SOURCE_CHOICES = [
+    ('Etat', 'Etat'),
+    ('Commune', 'Commune'),
+    ('Parents', 'Parents'),
+    ('Autres sources', 'Autres sources'),
+    ]
 class Local(models.Model):
-    numero = models.IntegerField(unique=True)  # Numéro du local
-    affectation_du_local = models.ManyToManyField(Affec, related_name="locaux")
-    dont = models.ManyToManyField(Do, related_name="locaux")
-    annee_mise_en_service = models.IntegerField(null=True, blank=True)
-    surface = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Surface en m²
+    numero = models.CharField(max_length=100)
+    affectation_du_local = models.CharField(max_length=250, choices=[
+        ('salle_classe_utilisée', 'Salle de classe utilisée'),
+        ('salle_classe_non_utilisée', 'Salle de classe  non utilisée'),
+           ('magasin_pédagogique', 'Magasin pédagogique'),
+        ('magasin_alimentaire', 'Magasin alimentaire'),
+           ('Bureau directeur', 'Bureau directeur'),
+        ('Logement', 'Logement'),
+           ('Réfectoire', 'Réfectoire'),
+    ], null=True, blank=True)
 
-    # Caractéristiques physiques
-    nature_murs = models.ManyToManyField(NatureMur, related_name="locaux")
-    etat_murs = models.ManyToManyField(EtatMur, related_name="locaux")
-    nature_toit = models.ManyToManyField(NatureToit, related_name="locaux")
-    etat_toit = models.ManyToManyField(EtatToit, related_name="locaux")
-    nature_sol = models.ManyToManyField(NatureSol, related_name="locaux")
-    etat_sol = models.ManyToManyField(EtatSol, related_name="locaux")
+    dont = models.CharField(max_length=250, choices=[
+        ('salle_autre_école', 'Salle autre école'),
+        ('local_emprunté_Loué', 'Local emprunté/Loué'),
+    ], null=True, blank=True)
 
-    # Portes et fenêtres
-    etat_portes = models.ManyToManyField(EtatPorte, related_name="locaux")
-    etat_fenetres = models.ManyToManyField(EtatFenetre, related_name="locaux")
+    annee_mise_en_service = models.IntegerField()
+    surface = models.FloatField()
+    nature_murs = models.CharField(max_length=250, choices=[
+        ('endur', 'En dur'),
+        ('semi_dur', 'Semi dur'),
+        ('banco', 'Banco'),
+        ('Paillotes', 'Paillotes'),
+        ('autres', 'Autres'),
+        
+    ], null=True, blank=True)
 
-    # Source de financement
-    source_financement = models.ManyToManyField(SourceFinancement, related_name="locaux")
+    etat_murs = models.CharField(max_length=250, choices=[
+        ('bon_acceptable', 'Bon / acceptable'),
+        ('mauvais', 'Mauvais'),
+    ], null=True, blank=True)
 
-    # Observations supplémentaires
-    observations = models.TextField(null=True, blank=True)
+    nature_toit = models.CharField(max_length=250, choices=[
+        ('dur', 'Dur'),
+        ('tôle', 'Tôle'),
+        ('chaume', 'Chaume'),
+        ('autres', 'Autres'),
+        
+    ], null=True, blank=True)
+
+    etat_toit = models.CharField(max_length=250, choices=[
+        ('bon_acceptable', 'Bon / acceptable'),
+        ('mauvais', 'Mauvais'),
+    ], null=True, blank=True)
+
+    nature_sol = models.CharField(max_length=250, choices=[
+        ('ciment', 'Ciment'),
+        ('terre', 'Terre'),
+        ('autre', 'Autre'),
+    ], null=True, blank=True)
+
+    etat_sol = models.CharField(max_length=250, choices=[
+        ('bon_acceptable', 'Bon / acceptable'),
+        ('mauvais', 'Mauvais'),
+    ], null=True, blank=True)
+
+    etat_portes = models.CharField(max_length=250, choices=[
+        ('bon', 'Bon'),
+        ('mauvais', 'mauvais'),
+        ('non installée','Non installée'),
+    ], null=True, blank=True)
+
+    etat_fenetres = models.CharField(max_length=250, choices=[
+        ('bon', 'Bon'),
+        ('mauvais', 'mauvais'),
+        ('non installée','Non installée')
+    ], null=True, blank=True)
+
+    source_financement = models.ManyToManyField(
+        'Source_F',
+        related_name="local",
+        help_text="Sélectionnez jusqu'à une source."
+    )  
+    observations = models.TextField()
 
     def __str__(self):
-        return f"Local nº{self.numero}"
+        return self.numero
+    
+class Source_F(models.Model):
+    nom = models.CharField(max_length=100, choices=ACTIVITES_APE_CHOICES, unique=True)
 
+    def __str__(self):
+        return self.get_nom_display()
 
 #----------------------------------CARACTÉRISTIQUES  DU MOBILIER ET DES ÉQUIPEMENTS---------------------------
 
@@ -604,39 +527,97 @@ class NouveauxInscrits(models.Model):
 #-----------------------------RÉPARTITION DES ÉLEVES PAR DIVISION PÉDAGOGIQUE----------------------------------
 
 
-
 class DivisionPedagogique(models.Model):
-    niveau = models.CharField(max_length=100)  # Niveau d'étude (ex : CP, CE1, etc.)
-    numero_salle = models.IntegerField(null=True, blank=True)  # Numéro de la salle de classe
-    vacation = models.CharField(max_length=50, choices=[('simple', 'Simple'), ('double', 'Double')], null=True, blank=True)
-    multigrade = models.BooleanField(default=False)  # Si la division est multigrade
-    double_flux = models.BooleanField(default=False)  # Si c'est une classe à double flux
+    division_pedagogique = models.CharField(max_length=100, verbose_name="Division pédagogique")
+    annee_etude = models.CharField(max_length=50, verbose_name="Année d'étude/Niveau")  # Exemple : "1ère année", "6ème année"
+    numero_salle_classe = models.PositiveIntegerField(verbose_name="N°  salle de classe")	
 
-    # Répartition des élèves par âge et sexe
-    age_6_ans = models.JSONField(null=True, blank=True)  # Structure détaillée (ex : {"garcons": 5, "filles": 4})
-    age_7_ans = models.JSONField(null=True, blank=True)
-    age_8_ans = models.JSONField(null=True, blank=True)
-    # Ajoutez les autres groupes d'âge ici...
+    type_classe_choices = [
+        ('simple', 'Simple vacation'),
+        ('double', 'Double vacation'),
+        ('multigrad', 'Multi-grade'),
+    ]
+    type_classe = models.CharField(max_length=10, choices=type_classe_choices, verbose_name="Type de classe")
+    numero_enseignant_arabe = models.PositiveIntegerField(verbose_name="N° ordre arabe")
+    numero_enseignant_francais = models.PositiveIntegerField(verbose_name="N° ordre francais")
+    
+    # Répartition des âges
+    apres_oct_2008_moins_6 = models.PositiveIntegerField(default=0, verbose_name="Moins de 6 ans (après octobre 2008)")
+    oct_2008_6_ans = models.PositiveIntegerField(default=0, verbose_name="6 ans (Oct-08)")
+    oct_2007_7_ans = models.PositiveIntegerField(default=0, verbose_name="7 ans (Oct-07)")
+    oct_2006_8_ans = models.PositiveIntegerField(default=0, verbose_name="8 ans (Oct-06)")
+    oct_2005_9_ans = models.PositiveIntegerField(default=0, verbose_name="9 ans (Oct-05)")
+    oct_2004_10_ans = models.PositiveIntegerField(default=0, verbose_name="10 ans (Oct-04)")
+    oct_2003_11_ans = models.PositiveIntegerField(default=0, verbose_name="11 ans (Oct-03)")
+    oct_2002_12_ans = models.PositiveIntegerField(default=0, verbose_name="12 ans (Oct-02)")
+    oct_2001_13_ans = models.PositiveIntegerField(default=0, verbose_name="13 ans (Oct-01)")
+    oct_2000_14_ans = models.PositiveIntegerField(default=0, verbose_name="14 ans (Oct-00)")
+    avant_2000_plus_14 = models.PositiveIntegerField(default=0, verbose_name="Plus de 14 ans (Avant 2000)")
 
-    total_eleves = models.IntegerField(null=True, blank=True)  # Total des élèves
-    redoublants = models.IntegerField(null=True, blank=True)  # Nombre de redoublants
+    # Totaux et statistiques
+    total_eleves = models.PositiveIntegerField(default=0, verbose_name="Total")
+    dont_redoublants = models.PositiveIntegerField(default=0, verbose_name="Dont redoublants")
+    redoublants_avec_cef = models.PositiveIntegerField(default=0, verbose_name="Redoublants 6ème année avec CEF")
+
+    # Calcul automatique du total
+    def save(self, *args, **kwargs):
+        self.total_eleves = (
+            self.apres_oct_2008_moins_6 + self.oct_2008_6_ans + self.oct_2007_7_ans +
+            self.oct_2006_8_ans + self.oct_2005_9_ans + self.oct_2004_10_ans +
+            self.oct_2003_11_ans + self.oct_2002_12_ans + self.oct_2001_13_ans +
+            self.oct_2000_14_ans + self.avant_2000_plus_14
+        )
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.niveau} - Classe nº{self.numero_salle}"
+        return f"Division: {self.division_pedagogique}, Total élèves: {self.total_eleves}"
+
 
 #--------------------------Aire Recrutement----------------------------
 
+from django.db import models
+
 class AireRecrutement(models.Model):
-    localite = models.CharField(max_length=200)  # Nom de la localité ou du quartier
-    distance_km = models.FloatField(null=True, blank=True)  # Distance estimée de l'école (en km)
-    nombre_eleves_garcons = models.IntegerField(default=0)  # Total garçons
-    nombre_eleves_filles = models.IntegerField(default=0)  # Total filles
-    total_eleves = models.IntegerField(default=0)  # Total élèves (garçons + filles)
-    redoublants_garcons = models.IntegerField(default=0)  # Garçons redoublants
-    redoublants_filles = models.IntegerField(default=0)  # Filles redoublantes
+    # Informations générales
+    localite = models.CharField(max_length=100, verbose_name="Localité/Quartier")
+    distance_choices = [
+        ('moins_de_1km', '<1 km'),
+        ('entre_1_et_3km', '1-3 km'),
+        ('entre_3_et_5km', '3-5 km'),
+        ('plus_de_5km', '>5 km'),
+        ('indetermine', 'Indéterminée'),
+    ]
+    distance = models.CharField(max_length=20, choices=distance_choices, verbose_name="Distance de l'école")
+
+    # Répartition des élèves par classe et genre
+    g_1a = models.PositiveIntegerField(default=0, verbose_name="Garçons 1A")
+    f_1a = models.PositiveIntegerField(default=0, verbose_name="Filles 1A")
+    g_2a = models.PositiveIntegerField(default=0, verbose_name="Garçons 2A")
+    f_2a = models.PositiveIntegerField(default=0, verbose_name="Filles 2A")
+    g_3a = models.PositiveIntegerField(default=0, verbose_name="Garçons 3A")
+    f_3a = models.PositiveIntegerField(default=0, verbose_name="Filles 3A")
+    g_4a = models.PositiveIntegerField(default=0, verbose_name="Garçons 4A")
+    f_4a = models.PositiveIntegerField(default=0, verbose_name="Filles 4A")
+    g_5a = models.PositiveIntegerField(default=0, verbose_name="Garçons 5A")
+    f_5a = models.PositiveIntegerField(default=0, verbose_name="Filles 5A")
+    g_6a = models.PositiveIntegerField(default=0, verbose_name="Garçons 6A")
+    f_6a = models.PositiveIntegerField(default=0, verbose_name="Filles 6A")
+
+    # Totaux
+    total_garcons = models.PositiveIntegerField(default=0, verbose_name="Total Garçons")
+    total_filles = models.PositiveIntegerField(default=0, verbose_name="Total Filles")
+
+    # Calcul automatique des totaux
+    def save(self, *args, **kwargs):
+        self.total_garcons = self.g_1a + self.g_2a + self.g_3a + self.g_4a + self.g_5a + self.g_6a
+        self.total_filles = self.f_1a + self.f_2a + self.f_3a + self.f_4a + self.f_5a + self.f_6a
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.localite} ({self.distance_km} km)"
+        return f"{self.localite} - Distance: {self.get_distance_display()}"
+
+
+
 
 class StatistiqueGenerale(models.Model):
     annee_scolaire = models.CharField(max_length=10)  # Année scolaire (ex. 2024/2025)
@@ -650,106 +631,192 @@ class StatistiqueGenerale(models.Model):
 
 #------------------------------Mobilite Eleves------------------------------
 
-
 class MobiliteEleves(models.Model):
-    nom_etablissement = models.CharField(max_length=200)  # Nom de l'établissement fréquenté
-    localite_origine = models.CharField(max_length=200)  # Localité d'origine (exemple : Wilaya, commune)
-    pays_origine = models.CharField(max_length=100, null=True, blank=True)  # Pays d'origine (si étranger)
-    statut_scolarisation = models.CharField(
-        max_length=50,
-        choices=[
-            ('scolarisé', 'Scolarisé'),
-            ('non_scolarisé', 'Non scolarisé'),
-            ('origine_inconnue', 'Origine inconnue')
-        ]
-    )
+    # Types d'établissements fréquentés l'année précédente
+    etablissement_choices = [
+        ('meme_ecole', 'Même école'),
+        ('ecole_meme_moughataa', 'École fondamentale de la même Moughataa'),
+        ('ecole_autre_moughataa', 'École d\'une autre Moughataa, même Wilaya'),
+        ('ecole_autre_wilaya', 'École fondamentale d\'une autre Wilaya'),
+        ('ecole_etranger', 'École d\'un pays étranger'),
+        ('prescolaire', 'Préscolaire'),
+        ('mahadra', 'Mahadra'),
+        ('non_scolarise', 'Non scolarisés'),
+        ('origine_inconnue', 'Origine non connue'),
+    ]
+    etablissement = models.CharField(max_length=50, choices=etablissement_choices, verbose_name="Établissement fréquenté")
 
-    # Répartition par genre
-    nombre_garcons = models.IntegerField(default=0)
-    nombre_filles = models.IntegerField(default=0)
+    # Répartition des élèves par niveau et genre
+    g_1a = models.PositiveIntegerField(default=0, verbose_name="Garçons 1A")
+    f_1a = models.PositiveIntegerField(default=0, verbose_name="Filles 1A")
+    g_2a = models.PositiveIntegerField(default=0, verbose_name="Garçons 2A")
+    f_2a = models.PositiveIntegerField(default=0, verbose_name="Filles 2A")
+    g_3a = models.PositiveIntegerField(default=0, verbose_name="Garçons 3A")
+    f_3a = models.PositiveIntegerField(default=0, verbose_name="Filles 3A")
+    g_4a = models.PositiveIntegerField(default=0, verbose_name="Garçons 4A")
+    f_4a = models.PositiveIntegerField(default=0, verbose_name="Filles 4A")
+    g_5a = models.PositiveIntegerField(default=0, verbose_name="Garçons 5A")
+    f_5a = models.PositiveIntegerField(default=0, verbose_name="Filles 5A")
+    g_6a = models.PositiveIntegerField(default=0, verbose_name="Garçons 6A")
+    f_6a = models.PositiveIntegerField(default=0, verbose_name="Filles 6A")
 
-    # Statistiques spécifiques
-    total_redoublants = models.IntegerField(default=0)  # Nombre total de redoublants
-    total_eleves = models.IntegerField(default=0)  # Nombre total d'élèves
+    # Totaux
+    total_garcons = models.PositiveIntegerField(default=0, verbose_name="Total Garçons", editable=False)
+    total_filles = models.PositiveIntegerField(default=0, verbose_name="Total Filles", editable=False)
+
+    # Calcul automatique des totaux
+    def save(self, *args, **kwargs):
+        self.total_garcons = self.g_1a + self.g_2a + self.g_3a + self.g_4a + self.g_5a + self.g_6a
+        self.total_filles = self.f_1a + self.f_2a + self.f_3a + self.f_4a + self.f_5a + self.f_6a
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.nom_etablissement} - Origine : {self.localite_origine} ({self.pays_origine})"
-
-
+        return f"{self.get_etablissement_display()} - Garçons: {self.total_garcons}, Filles: {self.total_filles}"
 
 #------------------------------StructurePedagogique----------------------------
 
 
-class StructurePedagogique(models.Model):
-    division = models.CharField(max_length=100)  # Nom ou niveau de la division pédagogique (ex. CP, CE1)
-    nombre_divisions = models.IntegerField()  # Nombre de divisions pédagogiques
-    nombre_eleves_garcons = models.IntegerField()  # Nombre de garçons inscrits
-    nombre_eleves_filles = models.IntegerField()  # Nombre de filles inscrites
-    total_eleves = models.IntegerField()  # Total d'élèves inscrits
-    redoublants_garcons = models.IntegerField()  # Nombre de garçons redoublants
-    redoublants_filles = models.IntegerField()  # Nombre de filles redoublantes
-    total_redoublants = models.IntegerField()  # Total des redoublants
+from django.db import models
 
-    # Informations supplémentaires
-    multigrade = models.BooleanField(default=False)  # Indique si la classe est multigrade
-    double_flux = models.BooleanField(default=False)  # Indique si la classe est à double flux
+class StructurePedagogique(models.Model):
+    NIVEAUX = [
+        ('1A', '1A'), 
+        ('2A', '2A'), 
+        ('3A', '3A'),
+        ('4A', '4A'), 
+        ('5A', '5A'), 
+        ('6A', '6A')
+    ]
+
+    # Niveau pédagogique (ex: 1A, 2A, etc.)
+    niveau = models.CharField(max_length=2, choices=NIVEAUX, unique=True)
+
+    # Divisions pédagogiques
+    simples = models.PositiveIntegerField(default=0, verbose_name="Divisions simples")
+    multigrades = models.PositiveIntegerField(default=0, verbose_name="Divisions multigrades")
+    double_flux = models.PositiveIntegerField(default=0, verbose_name="Divisions double flux")
+
+    # Élèves inscrits
+    inscrits_garcons = models.PositiveIntegerField(default=0, verbose_name="Élèves garçons inscrits")
+    inscrits_filles = models.PositiveIntegerField(default=0, verbose_name="Élèves filles inscrites")
+
+    # Élèves redoublants
+    redoublants_garcons = models.PositiveIntegerField(default=0, verbose_name="Redoublants garçons")
+    redoublants_filles = models.PositiveIntegerField(default=0, verbose_name="Redoublants filles")
+
+    # Propriétés calculées
+    @property
+    def inscrits_total(self):
+        return self.inscrits_garcons + self.inscrits_filles
+
+    @property
+    def redoublants_total(self):
+        return self.redoublants_garcons + self.redoublants_filles
+
+    @property
+    def divisions_total(self):
+        return self.simples + self.multigrades + self.double_flux
 
     def __str__(self):
-        return f"Division {self.division} - Total élèves : {self.total_eleves}"
+        return f"Niveau {self.niveau}: {self.inscrits_total} élèves inscrits"
 
+    def save(self, *args, **kwargs):
+        # Vous pouvez ajouter des validations ou d'autres calculs si nécessaire ici.
+        super().save(*args, **kwargs)
 
 #--------------------------------------Finances  Ecole-------------------------------
+from django.db import models
 
+class Contributions(models.Model):
+    CONTRIBUTION_RECUES = [
+        ('montant_global', 'Montant GLOBAL annuel de la cotisation de l\'Association des Parents d\'Elèves'),
+        ('cotisations_parents', 'Autres cotisations des parents d\'élèves'),
+        ('frais_inscription', 'Montant GLOBAL des frais d\'inscription (pour le privé)'),
+        ('autres_contributions', 'Autres contributions (ONG, Individus, etc.)'),
+        ('activites_generatrices_revenus', 'Activités génératrices de revenus'),
+    ]
 
-class FinancesEcole(models.Model):
-    # Contributions
-    contributions_familles = models.FloatField(null=True, blank=True)  # Contributions des familles
-    autres_contributions = models.FloatField(null=True, blank=True)  # Contributions des ONG, individus, etc.
-    activites_generatrices_revenus = models.FloatField(null=True, blank=True)  # Revenus issus d'activités
+    contributions_reçues_familles = models.CharField(
+        max_length=50, choices=CONTRIBUTION_RECUES, verbose_name="Catégorie de contribution"
+    )
 
-    # Budget et utilisation
-    construction_batiments = models.FloatField(null=True, blank=True)  # Dépenses de construction
-    renovation_batiments = models.FloatField(null=True, blank=True)  # Dépenses de rénovation
-    achat_mobilier = models.FloatField(null=True, blank=True)  # Achats de mobilier
-    renovation_mobilier = models.FloatField(null=True, blank=True)  # Rénovation de mobilier
-    achat_equipements_pedagogiques = models.FloatField(null=True, blank=True)  # Achats d'équipements pédagogiques
-    logement_enseignants = models.FloatField(null=True, blank=True)  # Logement pour enseignants
+    annee_precedente = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    annee_courante = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    # Salaires et cantine
-    salaires_personnel_enseignant = models.FloatField(null=True, blank=True)  # Salaires des enseignants
-    salaires_personnel_autre = models.FloatField(null=True, blank=True)  # Autres salaires
-    cantine_scolaire = models.FloatField(null=True, blank=True)  # Budget pour la cantine
-
-    # Projets
-    financement_projets = models.FloatField(null=True, blank=True)  # Financement de projets en cours
+    class Meta:
+        verbose_name = "Contribution financière"
+        verbose_name_plural = "Contributions financières"
 
     def __str__(self):
-        return f"Finances de l'école - ID : {self.id}"
+        return f"{self.get_contributions_reçues_familles_display()} | {self.annee_courante} FCFA"
+
+    @staticmethod
+    def calculer_totaux():
+        """
+        Calcule les totaux globaux de toutes les contributions enregistrées.
+        """
+        total_annee_precedente = Contributions.objects.aggregate(total=Sum('annee_precedente'))['total'] or 0
+        total_annee_en_cours = Contributions.objects.aggregate(total=Sum('annee_courante'))['total'] or 0
+
+        return {
+            'total_annee_precedente': total_annee_precedente,
+            'total_annee_en_cours': total_annee_en_cours
+        }
+
+class DonneeFinanciere(models.Model):
+    
+    CATEGORIES_DEPENSES = [
+        ('construction_batiments', 'Construction bâtiments'),
+        ('renovation_batiments', 'Rénovation bâtiments'),
+        ('achat_mobilier', 'Achat de mobilier'),
+        ('renovation_mobilier', 'Rénovation de mobilier'),
+        ('achat_equipements_pedagogiques', 'Achat équipements pédagogiques'),
+        ('achat_manuels_scolaires', 'Achat de manuels scolaires'),
+        ('logements_enseignants', 'Logements des enseignants'),
+        ('factures_eau', 'Factures d\'eau'),
+        ('factures_electricite', 'Factures d\'électricité'),
+        ('factures_telephone', 'Factures de téléphone'),
+        ('salaire_enseignants', 'Salaire personnel enseignant'),
+        ('salaire_personnel_autre', 'Salaire personnel autre'),
+        ('cantines_scolaires', 'Cantines scolaires'),
+    ]
+    
+    PARTENARIAT_CHOICES = [
+        ('jumelage', 'Jumelage'),
+        ('ong', 'ONG'),
+        ('prive', 'Privé'),
+    ]
+
+    categorie = models.CharField(max_length=50, choices=CATEGORIES_DEPENSES, verbose_name="Catégorie de dépense")
+    budget_ecole = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Budget école")
+    collectivites = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Collectivités")
+    ape = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="APE")
+    autre = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="AUTRE")
+
+    projet_ecole = models.BooleanField(default=False, verbose_name="L'école envisage-t-elle un projet d'école ?")
+    nature_projet = models.CharField(
+        max_length=255,  # Set an appropriate value for the maximum length
+        blank=True,
+        null=True,
+        verbose_name="Nature du projet",
+        help_text="Décrivez le projet si applicable"
+    )
+    partenariat = models.BooleanField(default=False, verbose_name="L'école a-t-elle établi un ou des partenariats ?")
+    type_partenariat = models.CharField(max_length=20, choices=PARTENARIAT_CHOICES, blank=True, null=True, verbose_name="Type de partenariat")
 
 
 #----------------------------ObservationEventuelle--------------------------
 
 
 class ObservationEventuelle(models.Model):
-    contenu = models.TextField()  # Champ pour les observations éventuelles
-    date_creation = models.DateField(auto_now_add=True)  # Date de création automatique
+    observations = models.TextField(verbose_name="Observations éventuelles", blank=True, null=True)
+    directeur_nom = models.CharField(max_length=255, verbose_name="Nom du directeur de l'école", blank=True, null=True)
+    directeur_date = models.DateField(verbose_name="Date (Directeur de l'école)", blank=True, null=True)
+    directeur_signature = models.BooleanField(verbose_name="Signature et cachet (Directeur de l'école)", default=False)
+    inspection_date = models.DateField(verbose_name="Date (Inspection départementale)", blank=True, null=True)
+    inspection_signature = models.BooleanField(verbose_name="Signature et cachet (Inspection départementale)", default=False)
+    direction_date = models.DateField(verbose_name="Date (Direction régionale)", blank=True, null=True)
+    direction_signature = models.BooleanField(verbose_name="Signature et cachet (Direction régionale)", default=False)
 
     def __str__(self):
-        return f"Observation du {self.date_creation}"
-
-class SignatureEtCachet(models.Model):
-    observation = models.ForeignKey(ObservationEventuelle, on_delete=models.CASCADE, related_name='signatures')  # Relie la signature à une observation
-    nom_signataire = models.CharField(max_length=200)  # Nom du signataire
-    fonction_signataire = models.CharField(max_length=100, choices=[
-        ('directeur', 'Directeur de l\'école'),
-        ('inspecteur', 'Inspecteur départemental'),
-        ('directeur_regional', 'Directeur régional')
-    ])  # Fonction du signataire
-    date_signature = models.DateField()  # Date de la signature
-    cachet_present = models.BooleanField(default=False)  # Indique si un cachet est apposé
-
-    def __str__(self):
-        return f"{self.nom_signataire} ({self.fonction_signataire}) - Signé le {self.date_signature}"
-
-
-
+        return f"Formulaire par {self.directeur_nom or 'Directeur inconnu'}"

@@ -6,17 +6,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Style général */
         body {
             display: flex;
             height: 100vh;
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             flex-direction: column;
-            background-color: #f0f2f5;
+            background: linear-gradient(to bottom, #004080, #f0f2f5);
             justify-content: center;
             align-items: center;
+            animation: fadeIn 1.2s ease-in-out;
         }
 
         /* En-tête */
@@ -54,16 +69,19 @@
             margin: auto;
         }
 
-        /* Section gauche (formulaire) */
-        .left {
+        .left, .right {
             flex: 1;
-            min-width: 350px;
+            min-width: 280px;
             max-width: 450px;
             background-color: white;
-            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Section gauche */
+        .left {
             text-align: center;
+            padding: 30px;
         }
 
         .logo img {
@@ -95,29 +113,30 @@
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
         }
 
         .form-container button:hover {
             background-color: #0056b3;
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 123, 255, 0.3);
         }
 
-        /* Section droite (image) */
+        /* Section droite */
         .right {
-            flex: 1;
-            min-height: 360px;
-            min-width: 350px;
-            max-width: 450px;
             background: url('{% static "images/m.png" %}') no-repeat center center;
             background-size: cover;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 360px;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             main {
                 flex-direction: column;
+            }
+
+            .header-title {
+                font-size: 1.5em;
             }
 
             .left, .right {
@@ -128,10 +147,31 @@
                 min-height: 250px;
             }
         }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 10px;
+            }
+
+            .header-title {
+                font-size: 1.2em;
+            }
+
+            .header-subtitle {
+                font-size: 0.9em;
+            }
+
+            .form-container input {
+                font-size: 0.9em;
+            }
+
+            .form-container button {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- En-tête -->
     <header>
         <h1 class="header-title">République Islamique de Mauritanie</h1>
         <p class="header-subtitle">Honneur - Fraternité - Justice</p>
@@ -140,10 +180,7 @@
         <p class="header-subtitle">Recensement Scolaire Annuel</p>
         <p class="header-subtitle">Questionnaire Fondamental</p>
     </header>
-
-    <!-- Contenu principal -->
     <main>
-        <!-- Section gauche avec le formulaire -->
         <div class="left">
             <div class="form-container">
                 <div class="logo">
@@ -156,12 +193,12 @@
                     <input id="username" type="text" name="username" placeholder="Nom d'utilisateur" required>
                     <label for="password">Mot de passe</label>
                     <input id="password" type="password" name="password" placeholder="Mot de passe" required>
-                    <button type="submit">Se connecter</button>
+                    <button type="submit">
+                        <i class="fa fa-sign-in"></i> Se connecter
+                    </button>
                 </form>
             </div>
         </div>
-
-        <!-- Section droite avec l'image -->
         <div class="right"></div>
     </main>
 </body>

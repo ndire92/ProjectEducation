@@ -7,75 +7,134 @@
 
     <!-- Contenu principal -->
     <div class="container mt-4">
-        <h2 class="text-primary text-center fw-bold mb-4">💰 Gestion des Finances de l'École</h2>
+        <h2 class="text-primary text-center fw-bold mb-4">
+            💰 Gestion des Finances de l'École
+        </h2>
 
         <!-- Messages de succès -->
         {% if messages %}
         <div class="alert alert-success shadow">
             {% for message in messages %}
-                {{ message }}
+                <i class="bi bi-check-circle-fill"></i> {{ message }}
             {% endfor %}
         </div>
         {% endif %}
 
         <!-- Barre de recherche -->
-        <form method="GET" class="mb-3 d-flex">
-            <input type="text" name="q" class="form-control me-2" placeholder="Rechercher par contribution (> valeur)..." value="{{ query }}">
-            <button type="submit" class="btn btn-primary">Rechercher</button>
+        <form method="GET" class="mb-3 d-flex justify-content-end">
+            <input type="text" name="q" class="form-control me-2 w-50" placeholder="Rechercher par contribution..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Rechercher</button>
         </form>
 
         <!-- Formulaire -->
         <div class="card p-4 mb-4 shadow-lg">
-            <h4 class="text-primary fw-bold mb-3">
-                {% if finance %} Modifier les Finances {% else %} Ajouter des Finances {% endif %}
+            <h4 class="text-primary fw-bold mb-3 text-center">
+                {% if finance %} Modifier les Finances {% else %} Ajouter des Données Financières {% endif %}
             </h4>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-success w-100 fw-bold">
-                    {% if finance %} Mettre à Jour {% else %} Enregistrer {% endif %}
-                </button>
-            </form>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-secondary">📋 Ressources Collectées</h5>
+                    <form method="POST" class="needs-validation bg-light p-3 rounded">
+                        {% csrf_token %}
+                        {{ form_donnee_financiere.as_p }}
+                        <button type="submit" class="btn btn-success w-100 mt-3"><i class="bi bi-cloud-upload"></i> Enregistrer Données</button>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-secondary">📋 Contributions</h5>
+                    <form method="POST" class="bg-light p-3 rounded">
+                        {% csrf_token %}
+                        {{ form_contributions.as_p }}
+                        <button type="submit" class="btn btn-info w-100 mt-3"><i class="bi bi-upload"></i> Enregistrer Contributions</button>
+                    </form>
+                </div>
+            </div>
         </div>
+        
 
         <!-- Liste des Finances -->
-        <div class="card p-4 shadow-lg">
-            <h4 class="text-primary fw-bold mb-3">📋 Liste des Finances</h4>
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>Contributions Familles</th>
-                        <th>Autres Contributions</th>
-                        <th>Activités Génératrices</th>
-                        <th>Budget Cantine</th>
-                        <th>Salaires Enseignants</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for finance in finances %}
-                    <tr>
-                        <td>{{ finance.contributions_familles }}</td>
-                        <td>{{ finance.autres_contributions }}</td>
-                        <td>{{ finance.activites_generatrices_revenus }}</td>
-                        <td>{{ finance.cantine_scolaire }}</td>
-                        <td>{{ finance.salaires_personnel_enseignant }}</td>
-                        <td>
-                            <a href="{% url 'gestion_finances' finance.id %}" class="btn btn-warning btn-sm">Modifier</a>
-                            <form method="POST" action="{% url 'supprimer_finance' finance.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center">Aucune finance trouvée.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="card shadow-lg p-4">
+            <h4 class="text-primary fw-bold mb-3">📊 Utilisation des Ressources</h4>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Budget École</th>
+                            <th>Collectivités</th>
+                            <th>APE</th>
+                            <th>Autre</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for donnee in finances %}
+                        <tr>
+                            <td>{{ donnee.categorie }}</td>
+                            <td>{{ donnee.budget_ecole }}</td>
+                            <td>{{ donnee.collectivites }}</td>
+                            <td>{{ donnee.ape }}</td>
+                            <td>{{ donnee.autre }}</td>
+                            <td>
+                                <a href="{% url 'gestion_finances' donnee.id %}" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Modifier</a>
+                                <form method="POST" action="{% url 'supprimer_finance' donnee.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Aucune finance trouvée.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+        
+        <div class="card shadow-lg p-4 mt-4">
+            <h4 class="text-primary fw-bold mb-3">📋 Contributions Reçues</h4>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="bg-secondary text-white">
+                        <tr>
+                            <th>Type de Contribution</th>
+                            <th>Année Précédente (FCFA)</th>
+                            <th>Année en Cours (FCFA)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contribution in contributions %}
+                        <tr>
+                            <td>{{ contribution.get_contributions_reçues_familles_display }}</td>
+                            <td>{{ contribution.annee_precedente }}</td>
+                            <td>{{ contribution.annee_courante }}</td>
+                            <td>
+                                <a href="" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Modifier</a>
+                                <form method="POST" action="" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-danger">Aucune contribution trouvée.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-light">
+                            <th>Total</th>
+                            <th>{{ total_annee_precedente|default:"0" }}</th>
+                            <th>{{ total_annee_en_cours|default:"0" }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
     </div>
 </div>
 {% endblock %}
